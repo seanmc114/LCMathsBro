@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Uncle — LC Maths OL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: #0f172a; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; }
+    .container { text-align: center; width: 100%; max-width: 480px; padding: 40px 24px 30px; display: flex; flex-direction: column; align-items: center; }
+    .un-figure { animation: float 4s ease-in-out infinite; display: block; margin: 0 auto 18px; filter: drop-shadow(0 0 22px rgba(29,78,216,0.5)); }
+    @keyframes float { 0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-10px) rotate(1deg);} }
+    h1 { font-family: 'DM Serif Display', serif; font-size: 2.4rem; color: white; margin-bottom: 4px; }
+    .sub { color: rgba(255,255,255,0.38); font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 36px; }
+    .nav-card { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 22px 20px; margin-bottom: 14px; text-decoration: none; display: block; transition: all 0.2s; text-align: left; }
+    .nav-card:hover { background: rgba(255,255,255,0.09); border-color: rgba(29,78,216,0.6); transform: translateY(-2px); }
+    .nav-card.uncle-card:hover { border-color: rgba(217,119,6,0.6); }
+    .card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .card-icon { font-size: 1.8rem; }
+    .card-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: white; }
+    .card-badge { margin-left: auto; background: rgba(29,78,216,0.3); border: 1px solid rgba(29,78,216,0.5); color: rgba(255,255,255,0.6); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
+    .uncle-card .card-badge { background: rgba(217,119,6,0.3); border-color: rgba(217,119,6,0.5); }
+    .card-desc { color: rgba(255,255,255,0.38); font-size: 0.82rem; line-height: 1.55; padding-left: 42px; }
+    .tagline { color: rgba(255,255,255,0.22); font-size: 0.76rem; font-style: italic; font-family: 'DM Serif Display', serif; margin-bottom: 28px; line-height: 1.6; max-width: 340px; }
+    footer { margin-top: 32px; font-size: 0.68rem; color: rgba(255,255,255,0.18); }
+    @media (max-width: 480px) {
+      .container { padding: 28px 18px 24px; }
+      h1 { font-size: 2rem; }
+      .un-figure { width: 100px; height: auto; }
+      .nav-card { padding: 18px 16px; border-radius: 14px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <svg class="un-figure" viewBox="0 0 200 270" width="130" height="176" xmlns="http://www.w3.org/2000/svg">
+    <rect x="42" y="155" width="116" height="100" rx="20" fill="#1e3a5f"/>
+    <rect x="70" y="158" width="60" height="94" rx="6" fill="#dbeafe"/>
+    <rect x="88" y="158" width="24" height="55" rx="4" fill="#93c5fd"/>
+    <rect x="148" y="172" width="32" height="42" rx="4" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="152" y="177" width="24" height="14" rx="2" fill="#60a5fa"/>
+    <line x1="152" y1="196" x2="176" y2="196" stroke="#94a3b8" stroke-width="1"/>
+    <line x1="152" y1="201" x2="176" y2="201" stroke="#94a3b8" stroke-width="1"/>
+    <line x1="152" y1="206" x2="170" y2="206" stroke="#94a3b8" stroke-width="1"/>
+    <ellipse cx="28" cy="195" rx="18" ry="50" fill="#1e3a5f"/>
+    <ellipse cx="172" cy="192" rx="18" ry="46" fill="#1e3a5f"/>
+    <ellipse cx="28" cy="238" rx="14" ry="13" fill="#c8a078"/>
+    <ellipse cx="172" cy="232" rx="14" ry="12" fill="#c8a078"/>
+    <rect x="84" y="128" width="32" height="32" rx="8" fill="#c8a078"/>
+    <ellipse cx="100" cy="97" rx="54" ry="58" fill="#c8a078"/>
+    <ellipse cx="100" cy="46" rx="46" ry="22" fill="#94a3b8"/>
+    <path d="M46 65 Q42 85 44 108" fill="none" stroke="#78909c" stroke-width="10" stroke-linecap="round"/>
+    <path d="M154 65 Q158 85 156 108" fill="none" stroke="#78909c" stroke-width="10" stroke-linecap="round"/>
+    <path d="M74 108 Q85 102 96 108" fill="rgba(200,230,255,0.3)" stroke="#555" stroke-width="2"/>
+    <path d="M104 108 Q115 102 126 108" fill="rgba(200,230,255,0.3)" stroke="#555" stroke-width="2"/>
+    <line x1="71" y1="107" x2="62" y2="105" stroke="#555" stroke-width="1.8"/>
+    <line x1="129" y1="107" x2="138" y2="105" stroke="#555" stroke-width="1.8"/>
+    <line x1="96" y1="108" x2="104" y2="108" stroke="#555" stroke-width="1.8"/>
+    <ellipse cx="85" cy="102" rx="5" ry="5.5" fill="#2c3e50"/>
+    <ellipse cx="115" cy="102" rx="5" ry="5.5" fill="#2c3e50"/>
+    <ellipse cx="85" cy="102" rx="3" ry="3.5" fill="#1a0a00"/>
+    <ellipse cx="115" cy="102" rx="3" ry="3.5" fill="#1a0a00"/>
+    <ellipse cx="86" cy="100" rx="1.5" ry="1.5" fill="white"/>
+    <ellipse cx="116" cy="100" rx="1.5" ry="1.5" fill="white"/>
+    <path d="M76 88 Q85 85 94 88" fill="none" stroke="#5a4a3a" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M106 88 Q115 85 124 88" fill="none" stroke="#5a4a3a" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="100" cy="114" rx="7" ry="5.5" fill="#b08868"/>
+    <path d="M87 130 Q100 138 113 130" fill="none" stroke="#8a5a3a" stroke-width="2.2" stroke-linecap="round"/>
+    <ellipse cx="46" cy="101" rx="8" ry="12" fill="#b08868"/>
+    <ellipse cx="154" cy="101" rx="8" ry="12" fill="#b08868"/>
+    <path d="M74 88 Q70 80 74 72" fill="none" stroke="#a07858" stroke-width="1" opacity="0.5"/>
+    <path d="M126 88 Q130 80 126 72" fill="none" stroke="#a07858" stroke-width="1" opacity="0.5"/>
+  </svg>
+
+  <h1>The Uncle</h1>
+  <p class="sub">LC Maths · Ordinary Level</p>
+
+  <p class="tagline">"Come here to me. Show me what you have. The marks are in the working — always have been."</p>
+
+  <a class="nav-card" href="lc-maths-turbo.html">
+    <div class="card-top">
+      <span class="card-icon">⚡</span>
+      <span class="card-title">TURBO</span>
+      <span class="card-badge">Drill</span>
+    </div>
+    <p class="card-desc">Drill formulas, definitions, and key rules across all seven OL Maths topics. Earn stars to unlock The Uncle. 600+ items. Eight levels.</p>
+  </a>
+
+  <a class="nav-card uncle-card" href="lc-maths-uncle.html">
+    <div class="card-top">
+      <span class="card-icon">👨‍🔧</span>
+      <span class="card-title">The Uncle</span>
+      <span class="card-badge">Exam Practice</span>
+    </div>
+    <p class="card-desc">Real OL exam-style questions. Write your working step by step. He marks method, substitution and answer separately — partial credit like the real paper.</p>
+  </a>
+
+  <footer>© 2026 · LC Maths OL · The Uncle · Imagination and Perseverance</footer>
+</div>
+</body>
+</html>

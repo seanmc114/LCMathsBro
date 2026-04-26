@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TURBO — OL Maths</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a; --card: rgba(255,255,255,0.97);
+      --primary: #1e3a5f; --primary-light: #eff6ff;
+      --blue: #1d4ed8; --gold: #d97706;
+      --ink: #1e293b; --muted: #64748b; --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; }
+    .container { width: 100%; max-width: 640px; margin: 20px; background: var(--card); border-radius: 22px; padding: 28px 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.45); color: var(--ink); }
+    .game-title { font-family: 'DM Serif Display', serif; font-size: 3rem; color: var(--primary); margin-bottom: 2px; font-style: italic; letter-spacing: -1px; }
+    .game-sub { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; }
+    .progress-wrap { margin-bottom: 16px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 5px; }
+    .progress-track { background: #eee; border-radius: 50px; height: 9px; }
+    .progress-fill { height: 100%; border-radius: 50px; background: linear-gradient(90deg, var(--blue), var(--gold)); transition: width 0.4s; }
+    .star-banner { background: var(--primary-light); border: 2px solid var(--blue); border-radius: 10px; padding: 9px 14px; font-size: 0.88rem; color: var(--blue); font-weight: 700; margin-bottom: 18px; }
+    #cat-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; justify-content: center; }
+    .cat-btn { background: #f1f5f9; color: var(--muted); font-size: 0.8rem; padding: 7px 13px; border: none; border-radius: 20px; cursor: pointer; font-weight: 700; transition: all 0.2s; font-family: 'Nunito', sans-serif; }
+    .cat-btn:hover { background: #dde6f0; }
+    .cat-btn.active { background: var(--blue); color: white; }
+    #level-list { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 6px; }
+    .zone-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin: 6px 0 2px; align-self: flex-start; padding-left: 4px; }
+    .level-btn { font-size: 0.98rem; padding: 13px 16px; background: var(--blue); color: white; border-radius: 10px; border: none; cursor: pointer; width: 96%; max-width: 380px; transition: transform 0.2s, filter 0.2s; display: flex; justify-content: space-between; align-items: center; font-family: 'Nunito', sans-serif; font-weight: 700; }
+    .level-btn:hover { filter: brightness(1.08); transform: scale(1.02); }
+    .level-btn:disabled { background: #c8c4bc; cursor: not-allowed; transform: none; color: #888; }
+    .level-btn.adv { background: #7c3d9e; }
+    .level-badge { font-size: 0.7rem; background: rgba(255,255,255,0.22); padding: 2px 8px; border-radius: 10px; }
+    .uncle-btn { background: linear-gradient(135deg, var(--primary), #0f2240) !important; justify-content: center !important; font-size: 1rem !important; }
+    #game { display: none; margin-top: 16px; }
+    #timer { font-size: 1.3rem; color: var(--blue); font-weight: 900; margin-bottom: 14px; }
+    #questions div { margin: 14px 0; font-size: 0.97rem; text-align: left; }
+    #questions input { font-size: 0.97rem; padding: 9px 11px; width: 100%; margin-top: 5px; border: 2px solid var(--border); border-radius: 8px; font-family: 'Nunito', sans-serif; box-sizing: border-box; }
+    #questions input:focus { outline: none; border-color: var(--blue); }
+    #submit { font-size: 1.2rem; padding: 13px 26px; background: var(--blue); color: white; border-radius: 12px; cursor: pointer; margin: 14px 4px 4px; border: none; font-family: 'Nunito', sans-serif; font-weight: 900; transition: transform 0.2s, filter 0.2s; }
+    #submit:hover { filter: brightness(1.1); transform: scale(1.03); }
+    #results { margin-top: 16px; font-size: 0.97rem; text-align: left; }
+    .try-again, #back-button { font-size: 1rem; padding: 11px 20px; background: var(--blue); color: white; border-radius: 10px; cursor: pointer; margin: 7px 4px; border: none; font-family: 'Nunito', sans-serif; font-weight: 900; transition: transform 0.2s; }
+    #back-button { background: #555; }
+    .try-again:hover, #back-button:hover { transform: scale(1.03); }
+    .perfect-celebration { font-size: 1.8rem; color: var(--gold); margin-bottom: 10px; text-align: center; }
+    .unlock-msg { color: var(--blue); font-weight: 700; font-size: 0.97rem; margin: 8px 0; }
+    footer { margin-top: 28px; font-size: 0.7rem; color: #aaa; border-top: 1px solid #eee; padding-top: 12px; text-align: center; }
+    @media (max-width: 480px) {
+      .container { margin: 10px; padding: 20px 16px; border-radius: 16px; }
+      .game-title { font-size: 2.4rem; }
+      .cat-btn { font-size: 0.75rem; padding: 6px 11px; }
+      .level-btn { font-size: 0.92rem; padding: 13px 14px; width: 100%; }
+      #questions div { font-size: 0.92rem; margin: 12px 0; }
+      #questions input { font-size: 1rem; padding: 10px 11px; }
+      #submit { font-size: 1.1rem; padding: 14px 22px; width: 100%; margin: 14px 0 4px; }
+      .try-again, #back-button { font-size: 0.95rem; padding: 12px 18px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="game-title">TURBO</div>
+  <p class="game-sub">LC Maths OL · The Uncle</p>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Stars to unlock The Uncle</span><span id="progress-pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="star-banner" id="star-banner">⭐ 0 stars — do 5 to unlock The Uncle</div>
+
+  <div id="cat-buttons">
+    <button class="cat-btn active" type="button" onclick="selectCat('algebra',this)">𝑥 Algebra</button>
+    <button class="cat-btn" type="button" onclick="selectCat('geometry',this)">📐 Geometry</button>
+    <button class="cat-btn" type="button" onclick="selectCat('statistics',this)">📊 Statistics</button>
+    <button class="cat-btn" type="button" onclick="selectCat('functions',this)">📈 Functions</button>
+    <button class="cat-btn" type="button" onclick="selectCat('financial',this)">💶 Financial</button>
+    <button class="cat-btn" type="button" onclick="selectCat('coordinate',this)">📍 Coord Geo</button>
+    <button class="cat-btn" type="button" onclick="selectCat('number',this)">🔢 Number</button>
+  </div>
+
+  <div id="level-list"></div>
+
+  <div id="game">
+    <div id="timer">Time: 0s</div>
+    <div id="questions"></div>
+    <button id="submit" type="button">Check Answers</button>
+    <div id="results"></div>
+  </div>
+
+  <footer>© 2026 · LC Maths OL · The Uncle · Imagination and Perseverance</footer>
+</div>
+
+<script>
+// ============================================================
+// TERMS BANK — OL Maths
+// 600+ items · 7 categories · 8 levels each
+// ============================================================
+const TERMS = {
+
+// ============================================================
+// ALGEBRA
+// ============================================================
+algebra: [
+  // Level 1 — Basic definitions and simple facts
+  {prompt:"What does 'solve for x' mean?",answer:"find the value of x that makes the equation true",lv:1},
+  {prompt:"What is a variable?",answer:"a letter that represents an unknown number",lv:1},
+  {prompt:"What is an equation?",answer:"a mathematical statement that two expressions are equal",lv:1},
+  {prompt:"Simplify: 3x + 2x",answer:"5x",lv:1},
+  {prompt:"Simplify: 4a − a",answer:"3a",lv:1},
+  {prompt:"What is a coefficient?",answer:"the number in front of a variable",lv:1},
+  {prompt:"Expand: 2(x + 3)",answer:"2x + 6",lv:1},
+  {prompt:"Expand: 3(2x − 1)",answer:"6x − 3",lv:1},
+  {prompt:"What is a like term?",answer:"terms with the same variable and power",lv:1},
+  {prompt:"Solve: x + 5 = 12",answer:"x = 7",lv:1},
+  {prompt:"Solve: x − 3 = 8",answer:"x = 11",lv:1},
+  {prompt:"Solve: 2x = 10",answer:"x = 5",lv:1},
+  {prompt:"Solve: x/3 = 4",answer:"x = 12",lv:1},
+  {prompt:"What does HCF stand for?",answer:"Highest Common Factor",lv:1},
+  {prompt:"What does LCM stand for?",answer:"Lowest Common Multiple",lv:1},
+
+  // Level 2 — Slightly harder equations and basic factorising
+  {prompt:"Solve: 3x + 1 = 10",answer:"x = 3",lv:2},
+  {prompt:"Solve: 2x − 5 = 9",answer:"x = 7",lv:2},
+  {prompt:"Solve: 4x + 3 = 19",answer:"x = 4",lv:2},
+  {prompt:"Solve: 5x − 2 = 13",answer:"x = 3",lv:2},
+  {prompt:"Expand: (x + 2)(x + 3)",answer:"x² + 5x + 6",lv:2},
+  {prompt:"Expand: (x + 1)(x − 4)",answer:"x² − 3x − 4",lv:2},
+  {prompt:"Expand: (x − 2)(x − 5)",answer:"x² − 7x + 10",lv:2},
+  {prompt:"Factorise: x² + 5x + 6",answer:"(x + 2)(x + 3)",lv:2},
+  {prompt:"Factorise: x² + 7x + 12",answer:"(x + 3)(x + 4)",lv:2},
+  {prompt:"Factorise: x² − 5x + 6",answer:"(x − 2)(x − 3)",lv:2},
+  {prompt:"Factorise: 2x + 6",answer:"2(x + 3)",lv:2},
+  {prompt:"Factorise: 4x − 8",answer:"4(x − 2)",lv:2},
+  {prompt:"Factorise: 3x² + 6x",answer:"3x(x + 2)",lv:2},
+  {prompt:"What is the difference of two squares rule?",answer:"a² − b² = (a + b)(a − b)",lv:2},
+  {prompt:"Factorise: x² − 9",answer:"(x + 3)(x − 3)",lv:2},
+  {prompt:"Factorise: x² − 16",answer:"(x + 4)(x − 4)",lv:2},
+
+  // Level 3 — Simultaneous equations, inequalities
+  {prompt:"Solve simultaneously: x + y = 5, x − y = 1",answer:"x = 3, y = 2",lv:3},
+  {prompt:"Solve simultaneously: 2x + y = 7, x + y = 4",answer:"x = 3, y = 1",lv:3},
+  {prompt:"Solve simultaneously: x + y = 6, 2x − y = 3",answer:"x = 3, y = 3",lv:3},
+  {prompt:"What is an inequality?",answer:"a statement that one expression is greater or less than another",lv:3},
+  {prompt:"Solve: 2x + 3 > 9",answer:"x > 3",lv:3},
+  {prompt:"Solve: 3x − 1 ≤ 11",answer:"x ≤ 4",lv:3},
+  {prompt:"Solve: 4x + 2 < 18",answer:"x < 4",lv:3},
+  {prompt:"When you multiply or divide an inequality by a negative number you must",answer:"flip the inequality sign",lv:3},
+  {prompt:"Solve: −2x > 6",answer:"x < −3",lv:3},
+  {prompt:"The quadratic formula",answer:"x = (−b ± √(b²−4ac)) / 2a",lv:3},
+  {prompt:"In ax² + bx + c = 0, what is the discriminant?",answer:"b² − 4ac",lv:3},
+  {prompt:"If the discriminant is positive, the quadratic has",answer:"two real roots",lv:3},
+  {prompt:"If the discriminant is zero, the quadratic has",answer:"one real (repeated) root",lv:3},
+  {prompt:"Solve: x² − 5x + 6 = 0 by factorising",answer:"x = 2 or x = 3",lv:3},
+  {prompt:"Solve: x² + x − 12 = 0",answer:"x = 3 or x = −4",lv:3},
+
+  // Level 4 — Harder applications
+  {prompt:"Solve simultaneously: 2x + 3y = 12, x − y = 1",answer:"x = 3, y = 2",lv:4},
+  {prompt:"Rearrange v = u + at for a",answer:"a = (v − u) / t",lv:4},
+  {prompt:"Rearrange A = πr² for r",answer:"r = √(A/π)",lv:4},
+  {prompt:"Rearrange F = ma for m",answer:"m = F/a",lv:4},
+  {prompt:"Solve: x² − 7x + 10 = 0",answer:"x = 2 or x = 5",lv:4},
+  {prompt:"Solve: x² + 3x − 10 = 0",answer:"x = 2 or x = −5",lv:4},
+  {prompt:"Solve using formula: x² + 2x − 3 = 0",answer:"x = 1 or x = −3",lv:4},
+  {prompt:"What does it mean to verify a solution?",answer:"substitute the answer back into the original equation to check it works",lv:4},
+  {prompt:"Simplify: (3x²)(2x³)",answer:"6x⁵",lv:4},
+  {prompt:"Simplify: 12x⁴ ÷ 4x²",answer:"3x²",lv:4},
+  {prompt:"What is x⁰ equal to (x ≠ 0)?",answer:"1",lv:4},
+  {prompt:"What is x^(−1)?",answer:"1/x",lv:4},
+
+  // Level 5 — Complex problems
+  {prompt:"Factorise: 2x² + 5x + 3",answer:"(2x + 3)(x + 1)",lv:5},
+  {prompt:"Factorise: 3x² + 7x + 2",answer:"(3x + 1)(x + 2)",lv:5},
+  {prompt:"Solve: 2x² − 5x + 2 = 0",answer:"x = 2 or x = 1/2",lv:5},
+  {prompt:"Solve: 3x² − 10x + 3 = 0",answer:"x = 3 or x = 1/3",lv:5},
+  {prompt:"Simplify: (x² − 4) / (x + 2)",answer:"x − 2",lv:5},
+  {prompt:"Solve simultaneously with one quadratic: y = x², y = x + 2",answer:"x = 2, y = 4 or x = −1, y = 1",lv:5},
+  {prompt:"What is the sum of roots of ax² + bx + c = 0?",answer:"−b/a",lv:5},
+  {prompt:"What is the product of roots of ax² + bx + c = 0?",answer:"c/a",lv:5},
+
+  // Level 6 — Exam standard
+  {prompt:"Steps to solve a simultaneous equation by substitution",answer:"rearrange one equation for x, substitute into other, solve for y, find x",lv:6},
+  {prompt:"Steps to solve by elimination",answer:"make one variable the same coefficient, add or subtract equations, solve, substitute back",lv:6},
+  {prompt:"How to form a quadratic from a word problem",answer:"define variable, write equation using the information, expand and rearrange to = 0, solve",lv:6},
+  {prompt:"When to use quadratic formula vs factorising",answer:"factorise when easy; use formula when discriminant is messy or question specifies",lv:6},
+
+  // Level 7 — Multi-step
+  {prompt:"Solve: (x + 1)(x − 2) = 4",answer:"expand to x² − x − 2 = 4, rearrange to x² − x − 6 = 0, solve: x = 3 or x = −2",lv:7},
+  {prompt:"A rectangle has area 24 and perimeter 20. Find the dimensions.",answer:"length and width satisfy: 2(l+w)=20 so l+w=10; lw=24 — solve: l=4 w=6 or l=6 w=4",lv:7},
+  {prompt:"Solve: x/2 + x/3 = 5",answer:"multiply by 6: 3x + 2x = 30, 5x = 30, x = 6",lv:7},
+
+  // Level 8 — Exam-style full questions
+  {prompt:"Solve x² − 3x − 10 = 0 and verify both solutions",answer:"(x−5)(x+2)=0, x=5 or x=−2; verify: 25−15−10=0 ✓, 4+6−10=0 ✓",lv:8},
+  {prompt:"Show that x = 3 is a solution of 2x² − 5x − 3 = 0, then find the other root",answer:"2(9)−15−3=0 ✓; product of roots = −3/2, so other root = −1/2",lv:8},
+],
+
+// ============================================================
+// GEOMETRY & TRIGONOMETRY
+// ============================================================
+geometry: [
+  // Level 1
+  {prompt:"Pythagoras' theorem",answer:"a² + b² = c² where c is the hypotenuse",lv:1},
+  {prompt:"The hypotenuse is",answer:"the longest side — opposite the right angle",lv:1},
+  {prompt:"sin θ =",answer:"opposite / hypotenuse",lv:1},
+  {prompt:"cos θ =",answer:"adjacent / hypotenuse",lv:1},
+  {prompt:"tan θ =",answer:"opposite / adjacent",lv:1},
+  {prompt:"Area of a triangle formula",answer:"½ × base × height",lv:1},
+  {prompt:"Area of a circle formula",answer:"πr²",lv:1},
+  {prompt:"Circumference of a circle",answer:"2πr or πd",lv:1},
+  {prompt:"Sum of angles in a triangle",answer:"180°",lv:1},
+  {prompt:"Sum of angles in a quadrilateral",answer:"360°",lv:1},
+  {prompt:"What is a right angle?",answer:"90°",lv:1},
+  {prompt:"What is an isosceles triangle?",answer:"a triangle with two equal sides and two equal angles",lv:1},
+  {prompt:"What is an equilateral triangle?",answer:"all three sides equal, all angles 60°",lv:1},
+  {prompt:"Perimeter of a rectangle",answer:"2(l + w)",lv:1},
+  {prompt:"Area of a rectangle",answer:"length × width",lv:1},
+
+  // Level 2
+  {prompt:"Find the hypotenuse if the other sides are 3 and 4",answer:"5 (3² + 4² = 25, √25 = 5)",lv:2},
+  {prompt:"Find the hypotenuse if the other sides are 5 and 12",answer:"13 (25 + 144 = 169, √169 = 13)",lv:2},
+  {prompt:"sin 30° =",answer:"0.5 or 1/2",lv:2},
+  {prompt:"cos 60° =",answer:"0.5 or 1/2",lv:2},
+  {prompt:"sin 90° =",answer:"1",lv:2},
+  {prompt:"cos 0° =",answer:"1",lv:2},
+  {prompt:"tan 45° =",answer:"1",lv:2},
+  {prompt:"sin 45° =",answer:"1/√2 or √2/2 ≈ 0.707",lv:2},
+  {prompt:"Area of triangle using trig: formula",answer:"½ab sin C",lv:2},
+  {prompt:"The sine rule",answer:"a/sin A = b/sin B = c/sin C",lv:2},
+  {prompt:"The cosine rule for finding a side",answer:"a² = b² + c² − 2bc cos A",lv:2},
+  {prompt:"The cosine rule rearranged for an angle",answer:"cos A = (b² + c² − a²) / 2bc",lv:2},
+  {prompt:"Volume of a cuboid",answer:"length × width × height",lv:2},
+  {prompt:"Volume of a cylinder",answer:"πr²h",lv:2},
+  {prompt:"Surface area of a sphere",answer:"4πr²",lv:2},
+
+  // Level 3
+  {prompt:"When do you use the sine rule?",answer:"when you have two angles and a side, or two sides and a non-included angle",lv:3},
+  {prompt:"When do you use the cosine rule?",answer:"when you have two sides and the included angle, or three sides and need an angle",lv:3},
+  {prompt:"When do you use ½ab sin C?",answer:"when you have two sides and the included angle",lv:3},
+  {prompt:"A ladder 5m long leans against a wall. It makes 60° with the ground. How high up the wall?",answer:"5 × sin 60° = 5 × 0.866 = 4.33m",lv:3},
+  {prompt:"What is a tangent to a circle?",answer:"a line that touches the circle at exactly one point",lv:3},
+  {prompt:"Angle in a semicircle is",answer:"90°",lv:3},
+  {prompt:"What is the theorem of the angle at centre?",answer:"angle at centre = twice angle at circumference on same arc",lv:3},
+  {prompt:"Angles in the same segment are",answer:"equal",lv:3},
+  {prompt:"Opposite angles of a cyclic quadrilateral add up to",answer:"180°",lv:3},
+  {prompt:"Volume of a cone",answer:"⅓πr²h",lv:3},
+  {prompt:"Volume of a sphere",answer:"⁴⁄₃πr³",lv:3},
+  {prompt:"Curved surface area of a cylinder",answer:"2πrh",lv:3},
+  {prompt:"Total surface area of a cylinder",answer:"2πrh + 2πr²",lv:3},
+  {prompt:"The exterior angle of a triangle equals",answer:"the sum of the two non-adjacent interior angles",lv:3},
+
+  // Level 4
+  {prompt:"Find angle A if sin A = 0.5",answer:"A = 30°",lv:4},
+  {prompt:"Find angle A if cos A = 0.5",answer:"A = 60°",lv:4},
+  {prompt:"In a right triangle, opposite = 7, hypotenuse = 10. Find the angle.",answer:"sin θ = 7/10, θ = sin⁻¹(0.7) ≈ 44.4°",lv:4},
+  {prompt:"Find the area of a triangle with sides 8 and 6 and included angle 40°",answer:"½ × 8 × 6 × sin 40° = 24 × 0.643 ≈ 15.4",lv:4},
+  {prompt:"Two sides of a triangle are 7 and 9 with included angle 50°. Find the third side.",answer:"a² = 49 + 81 − 2(7)(9)cos50° = 130 − 80.7 = 49.3, a ≈ 7.02",lv:4},
+  {prompt:"What is a scalene triangle?",answer:"all three sides different lengths, all angles different",lv:4},
+  {prompt:"The tangent from an external point to a circle — how many tangents can be drawn?",answer:"two, and they are equal in length",lv:4},
+  {prompt:"What angle does a radius make with a tangent?",answer:"90°",lv:4},
+
+  // Level 5
+  {prompt:"Use the sine rule to find angle B if a=8, b=6, A=50°",answer:"sin B = 6 sin50°/8 = 6×0.766/8 = 0.574, B ≈ 35.1°",lv:5},
+  {prompt:"Find all three angles of a triangle with sides 5, 7, 9",answer:"use cosine rule for each — cos A = (49+81−25)/126 ≈ 0.833, A≈33.6°, then sine rule for others",lv:5},
+  {prompt:"A sector has radius 6 and angle 90°. Find its area.",answer:"(90/360) × π × 6² = ¼ × 36π = 9π ≈ 28.3",lv:5},
+  {prompt:"Arc length formula",answer:"(θ/360) × 2πr",lv:5},
+  {prompt:"Sector area formula",answer:"(θ/360) × πr²",lv:5},
+
+  // Level 6
+  {prompt:"Steps to solve a triangle using sine rule",answer:"identify known angle and opposite side, set up ratio, cross multiply, use sin⁻¹ or divide",lv:6},
+  {prompt:"Steps to find area of non-right triangle",answer:"identify two sides and included angle, apply ½ab sin C, calculate",lv:6},
+  {prompt:"When to use Pythagoras vs trig ratios",answer:"Pythagoras: right triangle, two sides known; trig ratios: right triangle, angle and one side",lv:6},
+
+  // Level 7
+  {prompt:"A triangle has sides 10, 12 and included angle 70°. Find area and third side.",answer:"area = ½×10×12×sin70° ≈ 56.4; third side: a²=100+144−240cos70°=162.9, a≈12.76",lv:7},
+  {prompt:"A ship travels 8km north then 6km east. Find distance from start and bearing.",answer:"distance = √(64+36) = 10km; bearing = tan⁻¹(6/8) ≈ 36.9° → bearing ≈ N36.9°E",lv:7},
+
+  // Level 8
+  {prompt:"Prove that in a right triangle with hypotenuse 1, sin²θ + cos²θ = 1",answer:"sin θ = opp/1 = opp, cos θ = adj/1 = adj; opp² + adj² = hyp² = 1, so sin²θ + cos²θ = 1",lv:8},
+  {prompt:"Find the radius of a circle if a chord of length 8 is 3 units from the centre",answer:"half chord = 4; r² = 4² + 3² = 25; r = 5",lv:8},
+  // Extra geometry items
+  {prompt:"Area of a triangle with base 10 and height 6",answer:"½ × 10 × 6 = 30",lv:1},
+  {prompt:"Area of a circle with radius 5",answer:"π × 25 = 25π ≈ 78.54",lv:1},
+  {prompt:"Perimeter of a square with side 7",answer:"4 × 7 = 28",lv:1},
+  {prompt:"Area of a square with side 4",answer:"16",lv:1},
+  {prompt:"Find the third side if two angles of a triangle are 50° and 70°",answer:"third angle = 180 − 50 − 70 = 60°",lv:2},
+  {prompt:"Volume of a cylinder with radius 3 and height 8",answer:"π × 9 × 8 = 72π ≈ 226.2",lv:2},
+  {prompt:"Surface area of a cube with side 4",answer:"6 × 16 = 96",lv:2},
+  {prompt:"Find the arc length of a sector with radius 10 and angle 45°",answer:"(45/360) × 2π × 10 = 2.5π ≈ 7.85",lv:4},
+  {prompt:"A sector has area 24π and radius 6. Find the angle.",answer:"24π = (θ/360) × π × 36; 24 = θ/10; θ = 240°",lv:5},
+  {prompt:"In a right triangle, find the side opposite 35° if hypotenuse is 12",answer:"12 × sin 35° = 12 × 0.574 ≈ 6.88",lv:3},
+  {prompt:"Two sides of a triangle are 6 and 8, angle between them 90°. Area?",answer:"½ × 6 × 8 = 24",lv:3},
+  {prompt:"Volume of a cone with radius 4 and height 9",answer:"⅓ × π × 16 × 9 = 48π ≈ 150.8",lv:4},
+  {prompt:"What is a chord?",answer:"a line segment joining two points on a circle",lv:2},
+  {prompt:"What is a diameter?",answer:"a chord passing through the centre — twice the radius",lv:2},
+],
+
+// ============================================================
+// STATISTICS & PROBABILITY
+// ============================================================
+statistics: [
+  // Level 1
+  {prompt:"The mean is",answer:"the sum of all values divided by the number of values",lv:1},
+  {prompt:"The median is",answer:"the middle value when data is arranged in order",lv:1},
+  {prompt:"The mode is",answer:"the most frequently occurring value",lv:1},
+  {prompt:"The range is",answer:"the largest value minus the smallest value",lv:1},
+  {prompt:"What is probability?",answer:"the likelihood of an event — measured from 0 (impossible) to 1 (certain)",lv:1},
+  {prompt:"Probability formula",answer:"P(event) = number of favourable outcomes / total number of outcomes",lv:1},
+  {prompt:"P(event) + P(not event) =",answer:"1",lv:1},
+  {prompt:"What is P(getting heads on a fair coin)?",answer:"1/2 or 0.5",lv:1},
+  {prompt:"What is P(rolling a 6 on a fair die)?",answer:"1/6",lv:1},
+  {prompt:"What is P(rolling an even number on a fair die)?",answer:"3/6 = 1/2",lv:1},
+  {prompt:"Find the mean of: 3, 5, 7, 9, 11",answer:"35 / 5 = 7",lv:1},
+  {prompt:"Find the median of: 2, 4, 6, 8, 10",answer:"6",lv:1},
+  {prompt:"Find the mode of: 3, 5, 3, 7, 3, 9",answer:"3",lv:1},
+  {prompt:"Find the range of: 4, 9, 2, 15, 6",answer:"15 − 2 = 13",lv:1},
+  {prompt:"What is a frequency table?",answer:"a table showing how often each value occurs",lv:1},
+
+  // Level 2
+  {prompt:"Find the mean of: 10, 20, 30, 40, 50",answer:"150 / 5 = 30",lv:2},
+  {prompt:"Find the median of: 3, 7, 2, 9, 5",answer:"order first: 2,3,5,7,9 — median = 5",lv:2},
+  {prompt:"If there are two middle values the median is",answer:"the mean of the two middle values",lv:2},
+  {prompt:"Find the median of: 4, 8, 12, 16",answer:"(8 + 12) / 2 = 10",lv:2},
+  {prompt:"What is a histogram?",answer:"a bar chart where bars are drawn for continuous data with no gaps between bars",lv:2},
+  {prompt:"What is a stem-and-leaf plot?",answer:"a display that splits each data value into a stem and leaf to show distribution",lv:2},
+  {prompt:"P(A and B) for independent events =",answer:"P(A) × P(B)",lv:2},
+  {prompt:"P(A or B) for mutually exclusive events =",answer:"P(A) + P(B)",lv:2},
+  {prompt:"What are mutually exclusive events?",answer:"events that cannot both happen at the same time",lv:2},
+  {prompt:"What are independent events?",answer:"events where the outcome of one does not affect the other",lv:2},
+  {prompt:"A bag has 3 red and 5 blue balls. P(red) =",answer:"3/8",lv:2},
+  {prompt:"Two dice are rolled. P(both show 6) =",answer:"1/6 × 1/6 = 1/36",lv:2},
+
+  // Level 3
+  {prompt:"What is standard deviation?",answer:"a measure of how spread out the data is around the mean",lv:3},
+  {prompt:"A large standard deviation means",answer:"data is widely spread from the mean",lv:3},
+  {prompt:"A small standard deviation means",answer:"data is clustered close to the mean",lv:3},
+  {prompt:"What is a normal distribution?",answer:"a bell-shaped symmetric distribution where mean = median = mode",lv:3},
+  {prompt:"In a normal distribution, about 68% of data falls within",answer:"one standard deviation of the mean",lv:3},
+  {prompt:"In a normal distribution, about 95% of data falls within",answer:"two standard deviations of the mean",lv:3},
+  {prompt:"What is a pie chart?",answer:"a circular chart divided into sectors where each sector represents a proportion",lv:3},
+  {prompt:"What is a bar chart?",answer:"a chart using rectangular bars of equal width to represent categorical data",lv:3},
+  {prompt:"What is a scatter plot?",answer:"a graph of points showing relationship between two variables",lv:3},
+  {prompt:"What is correlation?",answer:"the relationship or connection between two variables",lv:3},
+  {prompt:"Positive correlation means",answer:"as one variable increases, the other also increases",lv:3},
+  {prompt:"Negative correlation means",answer:"as one variable increases, the other decreases",lv:3},
+  {prompt:"P(A) = 0.4. What is P(not A)?",answer:"1 − 0.4 = 0.6",lv:3},
+  {prompt:"A card is drawn from a deck of 52. P(ace) =",answer:"4/52 = 1/13",lv:3},
+
+  // Level 4
+  {prompt:"Expected value formula",answer:"E(X) = sum of (value × probability)",lv:4},
+  {prompt:"A game pays €10 with probability 0.2 and €0 otherwise. Expected value?",answer:"10 × 0.2 + 0 × 0.8 = €2",lv:4},
+  {prompt:"What is relative frequency?",answer:"the frequency of an event divided by the total number of trials",lv:4},
+  {prompt:"What is a sample space?",answer:"the set of all possible outcomes",lv:4},
+  {prompt:"How to find P(A or B) when they are not mutually exclusive?",answer:"P(A) + P(B) − P(A and B)",lv:4},
+  {prompt:"Two cards drawn without replacement. P(both aces)?",answer:"4/52 × 3/51 = 12/2652 = 1/221",lv:4},
+  {prompt:"What does 'without replacement' mean?",answer:"the first item is not returned before the second is drawn",lv:4},
+  {prompt:"What is a frequency polygon?",answer:"a line graph connecting midpoints of tops of histogram bars",lv:4},
+
+  // Level 5
+  {prompt:"Calculate standard deviation steps",answer:"find mean, find each (x − mean)², average those, take square root",lv:5},
+  {prompt:"What is a cumulative frequency graph?",answer:"a graph showing running totals of frequencies — used to find median and quartiles",lv:5},
+  {prompt:"The interquartile range is",answer:"Q3 − Q1 — the range of the middle 50% of data",lv:5},
+  {prompt:"A spinner has 4 equal sections: 1,2,3,4. E(X) =",answer:"(1+2+3+4)/4 = 2.5",lv:5},
+
+  // Level 6
+  {prompt:"Steps to draw a histogram from a frequency table",answer:"scale axes, draw bars with width = class width, height = frequency density or frequency, no gaps",lv:6},
+  {prompt:"How to read the median from a cumulative frequency graph",answer:"go to n/2 on y-axis, draw horizontal to curve, read off x-axis",lv:6},
+
+  // Level 7
+  {prompt:"Data set: 5,8,8,9,10,12. Find mean, median, mode, range.",answer:"mean=52/6≈8.7; median=(8+9)/2=8.5; mode=8; range=12−5=7",lv:7},
+  {prompt:"In a class of 30, probability a student plays sport is 0.6. Expected number who play?",answer:"0.6 × 30 = 18",lv:7},
+
+  // Level 8
+  {prompt:"Explain why mean can be misleading as an average",answer:"it is affected by extreme values (outliers) — median may be more representative",lv:8},
+  {prompt:"A normal distribution has mean 50 and SD 10. What % score between 40 and 60?",answer:"within one SD of mean — approximately 68%",lv:8},
+  // Extra statistics items
+  {prompt:"Find the mean of: 4, 8, 12, 16, 20",answer:"60 / 5 = 12",lv:1},
+  {prompt:"Find the median of: 7, 3, 9, 1, 5",answer:"order: 1,3,5,7,9 — median = 5",lv:1},
+  {prompt:"Find the mode of: 2, 4, 4, 6, 8, 4",answer:"4",lv:1},
+  {prompt:"Find the range of: 12, 5, 18, 3, 9",answer:"18 − 3 = 15",lv:1},
+  {prompt:"P(rolling a number less than 3 on a die)",answer:"2/6 = 1/3",lv:2},
+  {prompt:"P(drawing a red card from 52-card deck)",answer:"26/52 = 1/2",lv:2},
+  {prompt:"If P(A) = 0.3 and P(B) = 0.5 and they are independent, P(A and B) =",answer:"0.3 × 0.5 = 0.15",lv:2},
+  {prompt:"What is a sample?",answer:"a subset of a population selected for a survey or study",lv:2},
+  {prompt:"A coin is tossed 3 times. P(all heads) =",answer:"(1/2)³ = 1/8",lv:3},
+  {prompt:"What is a biased sample?",answer:"a sample that does not represent the population fairly",lv:3},
+  {prompt:"What does 'at least one' mean in probability?",answer:"one or more — use P(at least one) = 1 − P(none)",lv:4},
+  {prompt:"Find E(X) if X can be 1,2,3,4,5,6 with equal probability",answer:"(1+2+3+4+5+6)/6 = 21/6 = 3.5",lv:4},
+  {prompt:"P(A or B) when P(A)=0.4, P(B)=0.3, P(A and B)=0.1",answer:"0.4 + 0.3 − 0.1 = 0.6",lv:4},
+  {prompt:"A class has 15 boys and 10 girls. P(picking a boy)?",answer:"15/25 = 3/5",lv:2},
+],
+
+// ============================================================
+// FUNCTIONS & GRAPHS
+// ============================================================
+functions: [
+  // Level 1
+  {prompt:"What is a function?",answer:"a rule that assigns exactly one output to each input",lv:1},
+  {prompt:"What is the domain of a function?",answer:"the set of all allowed input values (x values)",lv:1},
+  {prompt:"What is the range of a function?",answer:"the set of all possible output values (y values)",lv:1},
+  {prompt:"What is the y-intercept?",answer:"where the graph crosses the y-axis — when x = 0",lv:1},
+  {prompt:"What is the x-intercept?",answer:"where the graph crosses the x-axis — when y = 0",lv:1},
+  {prompt:"The equation of a line is y = mx + c. What is m?",answer:"the slope (gradient)",lv:1},
+  {prompt:"The equation of a line is y = mx + c. What is c?",answer:"the y-intercept",lv:1},
+  {prompt:"A linear function graph is",answer:"a straight line",lv:1},
+  {prompt:"A quadratic function graph is",answer:"a parabola (U-shape or inverted U)",lv:1},
+  {prompt:"If f(x) = 2x + 1, find f(3)",answer:"2(3) + 1 = 7",lv:1},
+  {prompt:"If f(x) = x² − 1, find f(4)",answer:"16 − 1 = 15",lv:1},
+
+  // Level 2
+  {prompt:"Find the slope of the line through (1,3) and (3,7)",answer:"(7−3)/(3−1) = 4/2 = 2",lv:2},
+  {prompt:"Find the slope of the line through (2,5) and (6,9)",answer:"(9−5)/(6−2) = 4/4 = 1",lv:2},
+  {prompt:"Slope formula",answer:"m = (y₂ − y₁) / (x₂ − x₁)",lv:2},
+  {prompt:"Find the equation of a line with slope 3 and y-intercept 2",answer:"y = 3x + 2",lv:2},
+  {prompt:"Find the y-intercept of y = 4x − 6",answer:"−6 (when x=0)",lv:2},
+  {prompt:"Find the x-intercept of y = 2x + 6",answer:"set y=0: 0=2x+6, x = −3",lv:2},
+  {prompt:"What is a positive slope?",answer:"the line goes upward from left to right",lv:2},
+  {prompt:"What is a negative slope?",answer:"the line goes downward from left to right",lv:2},
+  {prompt:"A horizontal line has slope",answer:"0",lv:2},
+  {prompt:"A vertical line has slope",answer:"undefined",lv:2},
+  {prompt:"If f(x) = 3x − 2, find x when f(x) = 7",answer:"3x − 2 = 7, 3x = 9, x = 3",lv:2},
+
+  // Level 3
+  {prompt:"The axis of symmetry of a parabola y = ax² + bx + c",answer:"x = −b/2a",lv:3},
+  {prompt:"For y = x² − 4x + 3, find the axis of symmetry",answer:"x = −(−4)/(2×1) = 2",lv:3},
+  {prompt:"What does the turning point of a parabola tell us?",answer:"the minimum (if a>0) or maximum (if a<0) value of the function",lv:3},
+  {prompt:"A quadratic y = ax² + bx + c opens upward when",answer:"a > 0",lv:3},
+  {prompt:"A quadratic opens downward when",answer:"a < 0",lv:3},
+  {prompt:"How to find turning point from factorised form",answer:"find x-intercepts, turning point x is the midpoint; substitute to find y",lv:3},
+  {prompt:"Exponential function form",answer:"f(x) = aˣ where a > 0, a ≠ 1",lv:3},
+  {prompt:"An exponential growth function has a",answer:"greater than 1",lv:3},
+  {prompt:"An exponential decay function has a",answer:"between 0 and 1",lv:3},
+  {prompt:"What is f⁻¹(x)?",answer:"the inverse function — reverses the operation of f",lv:3},
+
+  // Level 4
+  {prompt:"Find the equation of the line through (0,4) with slope −2",answer:"y = −2x + 4",lv:4},
+  {prompt:"Find the equation of the line through (2,3) with slope 1",answer:"y − 3 = 1(x − 2), so y = x + 1",lv:4},
+  {prompt:"Two lines are parallel when",answer:"they have the same slope",lv:4},
+  {prompt:"Two lines are perpendicular when",answer:"their slopes multiply to give −1",lv:4},
+  {prompt:"Find the turning point of y = x² − 6x + 5",answer:"axis: x = 3; y = 9 − 18 + 5 = −4; turning point (3, −4)",lv:4},
+  {prompt:"Where does y = x² − 5x + 6 cross the x-axis?",answer:"factorise: (x−2)(x−3)=0; x=2 or x=3",lv:4},
+  {prompt:"How to graph a quadratic",answer:"find y-intercept, x-intercepts, axis of symmetry, turning point — plot and draw smooth curve",lv:4},
+
+  // Level 5
+  {prompt:"Find where y = 2x + 1 and y = x² intersect",answer:"x² = 2x+1, x²−2x−1=0, x = (2±√8)/2 = 1±√2",lv:5},
+  {prompt:"If f(x) = 2x+3, find f⁻¹(x)",answer:"swap x and y: x = 2y+3, y = (x−3)/2, so f⁻¹(x) = (x−3)/2",lv:5},
+  {prompt:"Describe the transformation y = f(x) + k",answer:"vertical shift up by k units",lv:5},
+  {prompt:"Describe the transformation y = f(x − h)",answer:"horizontal shift right by h units",lv:5},
+
+  // Level 6
+  {prompt:"Steps to sketch a quadratic",answer:"find a (opens up/down), y-intercept, x-intercepts, axis of symmetry, turning point — sketch",lv:6},
+  {prompt:"How to find range of quadratic on restricted domain",answer:"find turning point, evaluate at endpoints, compare all values",lv:6},
+
+  // Level 7
+  {prompt:"Sketch y = x² − 4x − 5. Mark all key points.",answer:"y-int: −5; x-ints: x=5,x=−1; axis: x=2; turning point: (2,−9)",lv:7},
+  {prompt:"The line y = 3x + k is a tangent to y = x². Find k.",answer:"x² = 3x+k at one point: x²−3x−k=0, discriminant=0: 9+4k=0, k=−9/4",lv:7},
+
+  // Level 8
+  {prompt:"Find where y = x² − 3x + 2 and y = 2x − 4 intersect. Show working.",answer:"x²−3x+2=2x−4; x²−5x+6=0; (x−2)(x−3)=0; x=2,y=0 and x=3,y=2",lv:8},
+  {prompt:"A quadratic has roots x=1 and x=5. The y-intercept is 5. Find the equation.",answer:"y = a(x−1)(x−5); at x=0: 5 = a(−1)(−5) = 5a, a=1; y = x²−6x+5",lv:8},
+  // Extra algebra items
+  {prompt:"What is a constant?",answer:"a fixed value — a number that does not change",lv:1},
+  {prompt:"Simplify: 5x + 3 − 2x − 7",answer:"3x − 4",lv:1},
+  {prompt:"Expand: 4(3x + 2)",answer:"12x + 8",lv:1},
+  {prompt:"Solve: 3x = 21",answer:"x = 7",lv:1},
+  {prompt:"Solve: x + 8 = 15",answer:"x = 7",lv:1},
+  {prompt:"Solve: 2x + 6 = 14",answer:"x = 4",lv:2},
+  {prompt:"Solve: 5x − 3 = 22",answer:"x = 5",lv:2},
+  {prompt:"Expand: (x + 4)(x + 2)",answer:"x² + 6x + 8",lv:2},
+  {prompt:"Factorise: x² + 8x + 15",answer:"(x + 3)(x + 5)",lv:2},
+  {prompt:"Factorise: x² − 4",answer:"(x + 2)(x − 2)",lv:2},
+  {prompt:"Solve: x² − 9 = 0",answer:"x = 3 or x = −3",lv:3},
+  {prompt:"Solve simultaneously: x + y = 4, x − y = 2",answer:"x = 3, y = 1",lv:3},
+  {prompt:"Solve: x² − x − 6 = 0",answer:"(x−3)(x+2) = 0; x = 3 or x = −2",lv:3},
+  {prompt:"Solve: x(x − 4) = 0",answer:"x = 0 or x = 4",lv:3},
+  {prompt:"Rearrange s = ut + ½at² for u",answer:"u = (s − ½at²) / t",lv:4},
+  {prompt:"Solve: 2x² + 5x + 2 = 0",answer:"(2x + 1)(x + 2) = 0; x = −1/2 or x = −2",lv:4},
+  {prompt:"Solve: x² − 6x + 9 = 0",answer:"(x − 3)² = 0; x = 3 (repeated root)",lv:4},
+  {prompt:"Simplify: x⁵ × x³",answer:"x⁸",lv:4},
+  {prompt:"Use quadratic formula: x² − 4x + 1 = 0",answer:"x = (4 ± √12)/2 = 2 ± √3",lv:5},
+  {prompt:"Find the discriminant of 3x² − 2x + 4 = 0",answer:"b²−4ac = 4 − 48 = −44 — no real roots",lv:5},
+  {prompt:"Form a quadratic with roots 3 and −2",answer:"(x−3)(x+2) = 0; x² − x − 6 = 0",lv:5},
+  // Extra functions items
+  {prompt:"If f(x) = 5x − 3, find f(2)",answer:"10 − 3 = 7",lv:1},
+  {prompt:"If f(x) = x² + 1, find f(0)",answer:"0 + 1 = 1",lv:1},
+  {prompt:"What does f(x) = 0 mean geometrically?",answer:"x is an x-intercept — the graph crosses the x-axis",lv:1},
+  {prompt:"Find the slope of y = 7x − 4",answer:"7",lv:2},
+  {prompt:"Find the y-intercept of y = −3x + 9",answer:"9",lv:2},
+  {prompt:"Find the x-intercept of y = 4x − 8",answer:"set y=0: x = 2",lv:2},
+  {prompt:"Find slope through (0,0) and (4,8)",answer:"8/4 = 2",lv:2},
+  {prompt:"If f(x) = 2x + 1 and g(x) = x − 3, find f(g(2))",answer:"g(2)=−1; f(−1)=−1",lv:4},
+  {prompt:"What is f(f(x)) called?",answer:"a composite function — applying f twice",lv:4},
+  {prompt:"Describe y = f(x) + 3 as a transformation",answer:"shift vertically up by 3",lv:5},
+  {prompt:"Describe y = f(x + 2) as a transformation",answer:"shift horizontally left by 2",lv:5},
+  {prompt:"Describe y = −f(x) as a transformation",answer:"reflection in the x-axis",lv:5},
+  {prompt:"Describe y = f(−x) as a transformation",answer:"reflection in the y-axis",lv:5},
+  {prompt:"For y = 3x² − 6x + 1, find the axis of symmetry",answer:"x = −(−6)/(2×3) = 1",lv:3},
+  {prompt:"What is the y-intercept of any function f(x)?",answer:"f(0) — substitute x = 0",lv:1},
+  {prompt:"An exponential function f(x) = 2ˣ. Find f(4)",answer:"2⁴ = 16",lv:3},
+  {prompt:"An exponential function f(x) = (1/2)ˣ. Find f(3)",answer:"(1/2)³ = 1/8",lv:3},
+  {prompt:"Where does y = x² − 9 cross the x-axis?",answer:"x² = 9; x = 3 or x = −3",lv:3},
+  {prompt:"For y = (x − 2)², what is the turning point?",answer:"(2, 0) — minimum",lv:4},
+  {prompt:"For y = −(x + 1)² + 4, what is the turning point?",answer:"(−1, 4) — maximum",lv:4},
+  {prompt:"Two lines y = 2x + 3 and y = 2x − 1 — do they intersect?",answer:"no — they are parallel (same slope, different intercept)",lv:4},
+  {prompt:"Find inverse of f(x) = 4x − 3",answer:"swap x and y: x = 4y−3; y = (x+3)/4; f⁻¹(x) = (x+3)/4",lv:5},
+  {prompt:"What is the gradient of a horizontal line?",answer:"0",lv:1},
+  {prompt:"Does y = x² pass through (−3, 9)?",answer:"yes — (−3)² = 9 ✓",lv:2},
+],
+
+// ============================================================
+// FINANCIAL MATHS
+// ============================================================
+financial: [
+  // Level 1
+  {prompt:"What is a percentage?",answer:"a number out of 100",lv:1},
+  {prompt:"How to find 10% of a number",answer:"divide by 10",lv:1},
+  {prompt:"How to find 25% of a number",answer:"divide by 4",lv:1},
+  {prompt:"How to convert a fraction to a percentage",answer:"divide the fraction and multiply by 100",lv:1},
+  {prompt:"Find 20% of 150",answer:"0.20 × 150 = 30",lv:1},
+  {prompt:"Find 15% of 200",answer:"0.15 × 200 = 30",lv:1},
+  {prompt:"What is VAT?",answer:"Value Added Tax — a tax added to the price of goods and services",lv:1},
+  {prompt:"A price is €80 before 23% VAT. VAT amount?",answer:"0.23 × 80 = €18.40",lv:1},
+  {prompt:"What is simple interest?",answer:"interest calculated on the original principal only",lv:1},
+  {prompt:"Simple interest formula",answer:"I = PRT where P=principal, R=rate, T=time in years",lv:1},
+  {prompt:"Find simple interest on €500 at 4% for 3 years",answer:"I = 500 × 0.04 × 3 = €60",lv:1},
+  {prompt:"What is compound interest?",answer:"interest calculated on both the principal and accumulated interest",lv:1},
+  {prompt:"Compound interest formula",answer:"A = P(1 + r/n)^(nt) — or simply A = P(1 + i)^t for annual",lv:1},
+
+  // Level 2
+  {prompt:"Find compound interest on €1000 at 5% for 2 years",answer:"A = 1000(1.05)² = 1000 × 1.1025 = €1102.50",lv:2},
+  {prompt:"A coat costs €120. Reduced by 30%. New price?",answer:"120 × 0.70 = €84",lv:2},
+  {prompt:"A laptop costs €800 plus 23% VAT. Total price?",answer:"800 × 1.23 = €984",lv:2},
+  {prompt:"Express 3/8 as a percentage",answer:"3/8 = 0.375 = 37.5%",lv:2},
+  {prompt:"Express 0.65 as a percentage",answer:"65%",lv:2},
+  {prompt:"A price increases from €40 to €50. Percentage increase?",answer:"(10/40) × 100 = 25%",lv:2},
+  {prompt:"A salary of €36,000 gets a 5% increase. New salary?",answer:"36000 × 1.05 = €37,800",lv:2},
+  {prompt:"What is depreciation?",answer:"the decrease in value of an asset over time",lv:2},
+  {prompt:"A car is worth €20,000. Depreciates 15% per year. Value after 1 year?",answer:"20000 × 0.85 = €17,000",lv:2},
+  {prompt:"What is a mortgage?",answer:"a loan used to buy property — repaid with interest over many years",lv:2},
+
+  // Level 3
+  {prompt:"A car worth €20,000 depreciates 15% per year. Value after 3 years?",answer:"20000 × (0.85)³ = 20000 × 0.6141 = €12,282",lv:3},
+  {prompt:"Compound interest formula for finding years",answer:"use logs: t = log(A/P) / log(1+r)",lv:3},
+  {prompt:"Find the APR — what does it mean?",answer:"Annual Percentage Rate — the actual yearly cost of borrowing including fees",lv:3},
+  {prompt:"€2000 invested at 3% compound for 4 years. Final amount?",answer:"2000 × (1.03)⁴ = 2000 × 1.1255 = €2251",lv:3},
+  {prompt:"A house bought for €300,000 increases 8% per year. Value after 5 years?",answer:"300000 × (1.08)⁵ = 300000 × 1.4693 = €440,790",lv:3},
+  {prompt:"Gross income is income",answer:"before tax is deducted",lv:3},
+  {prompt:"Net income is income",answer:"after tax has been deducted",lv:3},
+  {prompt:"What is PAYE?",answer:"Pay As You Earn — Irish income tax deducted directly from wages",lv:3},
+  {prompt:"What is PRSI?",answer:"Pay Related Social Insurance — deducted from wages for social welfare",lv:3},
+  {prompt:"What is the USC?",answer:"Universal Social Charge — a tax on gross income in Ireland",lv:3},
+
+  // Level 4
+  {prompt:"A worker earns €45,000. Tax credits are €3,300. Income taxable at 20% up to €40,000, 40% above. Calculate tax.",answer:"20% of 40000 = 8000; 40% of 5000 = 2000; total tax = 10000 − 3300 = €6,700",lv:4},
+  {prompt:"What is a tax credit?",answer:"an amount deducted directly from your tax bill (not from income)",lv:4},
+  {prompt:"How is percentage profit calculated?",answer:"(profit / cost price) × 100",lv:4},
+  {prompt:"Bought for €200, sold for €260. Percentage profit?",answer:"(60/200) × 100 = 30%",lv:4},
+  {prompt:"A loan of €5000 at 6% compound for 3 years. Total amount owed?",answer:"5000 × (1.06)³ = 5000 × 1.191 = €5,955",lv:4},
+  {prompt:"What is the difference between flat rate and compound interest?",answer:"flat rate: interest on original amount only; compound: interest on growing total",lv:4},
+
+  // Level 5
+  {prompt:"How long to double €1000 at 7% compound?",answer:"1000(1.07)^t = 2000, (1.07)^t = 2, t = log2/log1.07 ≈ 10.24 years",lv:5},
+  {prompt:"Find the interest rate if €1000 grows to €1331 in 3 years (compound)",answer:"1000(1+r)³ = 1331, (1+r)³ = 1.331, 1+r = 1.1, r = 10%",lv:5},
+  {prompt:"Convert APR to monthly rate",answer:"monthly rate = (1 + APR)^(1/12) − 1",lv:5},
+
+  // Level 6
+  {prompt:"Steps to solve a compound interest problem",answer:"identify P, r, t; apply A = P(1+r)^t; calculate step by step",lv:6},
+  {prompt:"Steps to calculate net pay",answer:"start with gross; subtract income tax (minus credits), PRSI, USC",lv:6},
+
+  // Level 7
+  {prompt:"Sarah earns €52,000. Tax credits €3,550. Tax rates: 20% on first €42,000, 40% above. USC 2% on first €12,012, 4% above. Calculate net tax.",answer:"Income tax: (42000×0.2)+(10000×0.4)−3550=8400+4000−3550=€8850; USC: (12012×0.02)+(39988×0.04)=240+1600=€1840; Total deductions=€10,690",lv:7},
+
+  // Level 8
+  {prompt:"A house is valued at €250,000. It needs to be worth €300,000 in 4 years. What annual growth rate is needed?",answer:"250000(1+r)^4=300000; (1+r)^4=1.2; 1+r=1.2^0.25=1.0466; r≈4.66%",lv:8},
+  // Extra financial items
+  {prompt:"Find 30% of €450",answer:"0.30 × 450 = €135",lv:1},
+  {prompt:"Find 12.5% of €200",answer:"0.125 × 200 = €25",lv:1},
+  {prompt:"A price of €60 is increased by 10%. New price?",answer:"60 × 1.10 = €66",lv:1},
+  {prompt:"A price of €80 is decreased by 20%. New price?",answer:"80 × 0.80 = €64",lv:1},
+  {prompt:"Convert 3/5 to a percentage",answer:"3/5 = 0.6 = 60%",lv:1},
+  {prompt:"A jacket costs €95 plus 23% VAT. Total?",answer:"95 × 1.23 = €116.85",lv:2},
+  {prompt:"Find simple interest on €1000 at 5% for 2 years",answer:"1000 × 0.05 × 2 = €100",lv:2},
+  {prompt:"A bike bought for €300 is sold for €360. Percentage profit?",answer:"(60/300) × 100 = 20%",lv:2},
+  {prompt:"A car depreciates 20% per year. Starting value €15,000. Value after 2 years?",answer:"15000 × (0.8)² = 15000 × 0.64 = €9,600",lv:3},
+  {prompt:"€5,000 at 3% compound for 2 years",answer:"5000 × (1.03)² = 5000 × 1.0609 = €5,304.50",lv:3},
+  {prompt:"What does it mean to break even?",answer:"total revenue equals total cost — no profit or loss",lv:3},
+  {prompt:"A worker earns €3,000/month gross. PRSI at 4%. PRSI amount per month?",answer:"3000 × 0.04 = €120",lv:3},
+  {prompt:"Gross annual salary €48,000. Tax at 20% on all. Tax credits €3,300. Net tax?",answer:"48000 × 0.20 = 9600 − 3300 = €6,300",lv:4},
+  {prompt:"Find the original price if final price after 25% increase is €100",answer:"original × 1.25 = 100; original = €80",lv:4},
+  {prompt:"Find the original price if final price after 10% reduction is €90",answer:"original × 0.90 = 90; original = €100",lv:4},
+  {prompt:"How long to double at 10% compound? (approx)",answer:"rule of 72: 72/10 ≈ 7.2 years",lv:5},
+  {prompt:"What is the 'Rule of 72'?",answer:"divide 72 by the interest rate to approximate the time to double money",lv:5},
+  {prompt:"A loan of €10,000 at 8% compound for 2 years. Amount owed?",answer:"10000 × (1.08)² = 10000 × 1.1664 = €11,664",lv:4},
+  {prompt:"Find the percentage decrease from 200 to 150",answer:"(50/200) × 100 = 25%",lv:2},
+  {prompt:"Annual income €35,000. Income levy 2%. Levy amount?",answer:"35000 × 0.02 = €700",lv:3},
+  {prompt:"What is the net present value of €1,100 received in 1 year at 10% discount rate?",answer:"1100/1.10 = €1,000",lv:6},
+  {prompt:"A mortgage of €200,000 at 4% for 30 years — what principle applies?",answer:"compound interest — the outstanding balance earns interest each period",lv:6},
+  {prompt:"Budget: income €2,800/month, expenses €2,100. Monthly savings?",answer:"2800 − 2100 = €700",lv:1},
+  {prompt:"What is net worth?",answer:"total assets minus total liabilities",lv:3},
+  {prompt:"A bond pays 5% annual interest on €2,000 face value. Annual income?",answer:"0.05 × 2000 = €100",lv:2},
+],
+
+// ============================================================
+// COORDINATE GEOMETRY
+// ============================================================
+coordinate: [
+  // Level 1
+  {prompt:"Distance formula between two points",answer:"d = √[(x₂−x₁)² + (y₂−y₁)²]",lv:1},
+  {prompt:"Midpoint formula",answer:"M = ((x₁+x₂)/2, (y₁+y₂)/2)",lv:1},
+  {prompt:"How to calculate slope: m = ?",answer:"m = (y₂−y₁) / (x₂−x₁)",lv:1},
+  {prompt:"Equation of a line: slope-intercept form",answer:"y = mx + c",lv:1},
+  {prompt:"Find the distance between (0,0) and (3,4)",answer:"√(9+16) = √25 = 5",lv:1},
+  {prompt:"Find the midpoint of (2,4) and (6,8)",answer:"((2+6)/2, (4+8)/2) = (4, 6)",lv:1},
+  {prompt:"Find the slope of the line through (1,2) and (3,6)",answer:"(6−2)/(3−1) = 4/2 = 2",lv:1},
+  {prompt:"What is the y-axis?",answer:"the vertical axis — the line x = 0",lv:1},
+  {prompt:"What is the x-axis?",answer:"the horizontal axis — the line y = 0",lv:1},
+  {prompt:"The origin is",answer:"the point (0,0)",lv:1},
+
+  // Level 2
+  {prompt:"Find the equation of a line with slope 2 and y-intercept 3",answer:"y = 2x + 3",lv:2},
+  {prompt:"Find the equation of a line through (0,−1) with slope 3",answer:"y = 3x − 1",lv:2},
+  {prompt:"Find the slope of 3x + 2y = 6",answer:"rearrange: y = −3x/2 + 3; slope = −3/2",lv:2},
+  {prompt:"Find where y = 2x + 1 crosses the x-axis",answer:"set y=0: 0=2x+1; x=−1/2",lv:2},
+  {prompt:"Two parallel lines have",answer:"the same slope",lv:2},
+  {prompt:"If two lines are perpendicular, their slopes multiply to give",answer:"−1",lv:2},
+  {prompt:"Line has slope 2. A perpendicular line has slope",answer:"−1/2",lv:2},
+  {prompt:"Line has slope 3. A parallel line has slope",answer:"3",lv:2},
+  {prompt:"General form of a line",answer:"ax + by + c = 0",lv:2},
+  {prompt:"Find the distance between (1,1) and (4,5)",answer:"√[(4−1)²+(5−1)²] = √(9+16) = √25 = 5",lv:2},
+
+  // Level 3
+  {prompt:"Find the equation of the line through (2,3) with slope 4",answer:"y − 3 = 4(x − 2); y = 4x − 5",lv:3},
+  {prompt:"Find the equation of the line through (1,2) and (3,8)",answer:"slope=(8−2)/(3−1)=3; y−2=3(x−1); y=3x−1",lv:3},
+  {prompt:"Equation of a circle with centre (0,0) and radius r",answer:"x² + y² = r²",lv:3},
+  {prompt:"Equation of a circle with centre (a,b) and radius r",answer:"(x−a)² + (y−b)² = r²",lv:3},
+  {prompt:"Find the centre and radius of x² + y² = 25",answer:"centre (0,0), radius 5",lv:3},
+  {prompt:"Find the centre and radius of (x−3)² + (y+2)² = 16",answer:"centre (3,−2), radius 4",lv:3},
+  {prompt:"A point is inside a circle if",answer:"its distance from the centre is less than the radius",lv:3},
+  {prompt:"A point is on a circle if",answer:"its distance from the centre equals the radius",lv:3},
+
+  // Level 4
+  {prompt:"Find the equation of the line perpendicular to y=2x+1 through (0,3)",answer:"slope = −1/2; y = −x/2 + 3",lv:4},
+  {prompt:"Find where x + y = 5 and 2x − y = 1 intersect",answer:"add: 3x=6, x=2, y=3; point (2,3)",lv:4},
+  {prompt:"Does the point (3,4) lie on x² + y² = 25?",answer:"9 + 16 = 25 ✓ yes",lv:4},
+  {prompt:"Find the equation of a circle with centre (2,−1) and radius 3",answer:"(x−2)² + (y+1)² = 9",lv:4},
+  {prompt:"Find the length of a chord that is 4 units from the centre of a circle with radius 5",answer:"half-chord = √(25−16) = 3; chord = 6",lv:4},
+
+  // Level 5
+  {prompt:"Show that a tangent to a circle is perpendicular to the radius at the point of contact",answer:"radius goes from centre to point on circle; tangent touches at that point; angle = 90° by definition",lv:5},
+  {prompt:"Find the equation of the tangent to x²+y²=25 at point (3,4)",answer:"radius slope = 4/3; tangent slope = −3/4; y−4=−3/4(x−3); 3x+4y=25",lv:5},
+
+  // Level 6
+  {prompt:"Steps to find equation of line through two points",answer:"find slope m, substitute one point into y=mx+c to find c, write equation",lv:6},
+  {prompt:"Steps to find if two lines are parallel, perpendicular, or neither",answer:"find both slopes; equal = parallel; product = −1 means perpendicular; otherwise neither",lv:6},
+
+  // Level 7
+  {prompt:"Find the equation of the circle with diameter endpoints (0,0) and (6,8)",answer:"centre=(3,4); radius=½√(36+64)=5; (x−3)²+(y−4)²=25",lv:7},
+  {prompt:"A line y=x+k is tangent to x²+y²=8. Find k.",answer:"sub: x²+(x+k)²=8; 2x²+2kx+k²−8=0; discriminant=0: 4k²−8(k²−8)=0; −4k²+64=0; k=±4",lv:7},
+
+  // Level 8
+  {prompt:"Find the point(s) where y=2x+3 intersects x²+y²=13",answer:"sub: x²+(2x+3)²=13; 5x²+12x−4=0; (5x−2)(x+2)=0; x=2/5 or x=−2",lv:8},
+  // Extra coordinate geometry items
+  {prompt:"Find the distance between (0,0) and (5,12)",answer:"√(25+144) = √169 = 13",lv:1},
+  {prompt:"Find the midpoint of (0,0) and (8,6)",answer:"(4, 3)",lv:1},
+  {prompt:"What is the slope of a horizontal line y = 5?",answer:"0",lv:1},
+  {prompt:"What is the slope of a vertical line x = 3?",answer:"undefined",lv:1},
+  {prompt:"Find slope of the line through (2,1) and (6,9)",answer:"(9−1)/(6−2) = 8/4 = 2",lv:2},
+  {prompt:"Find equation of line with slope 5 passing through (0,−2)",answer:"y = 5x − 2",lv:2},
+  {prompt:"Does the point (2,5) lie on y = 2x + 1?",answer:"y = 2(2)+1 = 5 ✓ yes",lv:2},
+  {prompt:"Find the slope of 2x + 4y = 8",answer:"rearrange: y = −x/2 + 2; slope = −1/2",lv:3},
+  {prompt:"Find where y = x + 2 and y = 3x − 4 intersect",answer:"x+2=3x−4; 6=2x; x=3; y=5; point (3,5)",lv:3},
+  {prompt:"Find equation of line through (3,7) and (5,11)",answer:"slope=(11−7)/(5−3)=2; y−7=2(x−3); y=2x+1",lv:3},
+  {prompt:"Line has slope −3. Perpendicular slope?",answer:"1/3",lv:3},
+  {prompt:"Find the centre and radius of x² + y² = 100",answer:"centre (0,0), radius 10",lv:3},
+  {prompt:"Does point (3,4) lie on x² + y² = 25?",answer:"9 + 16 = 25 ✓ yes — on the circle",lv:4},
+  {prompt:"Find equation of circle centre (0,0) radius 7",answer:"x² + y² = 49",lv:3},
+  {prompt:"Find the centre of (x−5)² + (y+3)² = 16",answer:"centre (5, −3)",lv:3},
+  {prompt:"Find the radius of (x+2)² + (y−1)² = 36",answer:"radius = 6",lv:3},
+  {prompt:"Find equation of line perpendicular to y=3x+1 through (0,4)",answer:"slope=−1/3; y=−x/3+4",lv:4},
+  {prompt:"Two points (1,k) and (3,8) have slope 3. Find k.",answer:"(8−k)/(3−1) = 3; 8−k=6; k=2",lv:4},
+  {prompt:"Midpoint of (a,b) and (−a,−b)",answer:"(0,0)",lv:4},
+  {prompt:"Find where x=4 meets y=2x−3",answer:"y=2(4)−3=5; point (4,5)",lv:2},
+  {prompt:"The x-axis has equation",answer:"y = 0",lv:1},
+  {prompt:"The y-axis has equation",answer:"x = 0",lv:1},
+  {prompt:"A circle with equation x²+y²=r². If r=4, what is r²?",answer:"16",lv:2},
+  {prompt:"Find equation of the circle with diameter endpoints (0,0) and (4,0)",answer:"centre (2,0), radius 2; (x−2)² + y² = 4",lv:5},
+  // More coordinate items
+  {prompt:"Find the slope of a line parallel to 3x − y = 7",answer:"rearrange: y=3x−7; slope=3",lv:3},
+  {prompt:"A line passes through (−1,4) and is parallel to y=2x+5. Equation?",answer:"y−4=2(x+1); y=2x+6",lv:4},
+  {prompt:"A line passes through (2,3) and is perpendicular to y=−x+1. Equation?",answer:"slope=1; y−3=1(x−2); y=x+1",lv:4},
+  {prompt:"Verify that (−2,3) lies on x²+y²=13",answer:"4+9=13 ✓",lv:3},
+  {prompt:"Find the slope of x − 2y + 4 = 0",answer:"rearrange: 2y=x+4; y=x/2+2; slope=1/2",lv:3},
+  {prompt:"If A=(1,1) and B=(5,4), find AB and midpoint M.",answer:"|AB|=√(16+9)=5; M=(3, 2.5)",lv:3},
+  {prompt:"Two lines: y=2x+1 and y=−x+4. Find intersection.",answer:"2x+1=−x+4; 3x=3; x=1; y=3; (1,3)",lv:3},
+  {prompt:"A circle has centre (3,0) and passes through (7,0). Find equation.",answer:"radius=4; (x−3)²+y²=16",lv:4},
+  {prompt:"What is the slope of the line joining (0,a) and (a,0)?",answer:"(0−a)/(a−0) = −1",lv:4},
+  {prompt:"Find the perpendicular distance from (0,0) to the line 3x+4y=15",answer:"d = |3(0)+4(0)−15|/√(9+16) = 15/5 = 3",lv:6},
+  {prompt:"Find the equation of the circle with centre (−1,2) and passing through (3,2)",answer:"radius=4; (x+1)²+(y−2)²=16",lv:5},
+  {prompt:"If the midpoint of PQ is (3,5) and P=(1,3), find Q.",answer:"Q=(5,7)",lv:4},
+  {prompt:"A line has equation 4x+3y−12=0. Find x-intercept.",answer:"set y=0: 4x=12; x=3",lv:3},
+  {prompt:"A line has equation 4x+3y−12=0. Find y-intercept.",answer:"set x=0: 3y=12; y=4",lv:3},
+  {prompt:"What is the distance from the origin to (8,6)?",answer:"√(64+36)=√100=10",lv:2},
+  {prompt:"Find where y=0 meets y=3x−9",answer:"0=3x−9; x=3; point (3,0)",lv:2},
+  {prompt:"Line through (0,6) and (3,0). Find slope.",answer:"(0−6)/(3−0) = −2",lv:2},
+  {prompt:"Find equation of line through (0,6) and (3,0)",answer:"slope=−2; y=−2x+6",lv:3},
+  {prompt:"A circle x²+y²=25. Does (4,3) lie on it?",answer:"16+9=25 ✓ yes",lv:3},
+  {prompt:"Find equation of tangent to x²+y²=25 at (3,4)",answer:"radius slope=4/3; tangent slope=−3/4; y−4=−3/4(x−3); 3x+4y=25",lv:6},
+  {prompt:"Distance between (−2,1) and (2,4)",answer:"√(16+9)=5",lv:2},
+  {prompt:"Midpoint of (−3,2) and (7,8)",answer:"(2,5)",lv:2},
+  {prompt:"Two parallel lines never",answer:"intersect — they have the same slope",lv:2},
+  {prompt:"A line through (0,0) with slope 2. Equation?",answer:"y=2x",lv:2},
+  {prompt:"Find k if (k,3) lies on y=x−1",answer:"3=k−1; k=4",lv:3},
+  {prompt:"Find m if (2,m) lies on y=3x+1",answer:"m=7",lv:3},
+  {prompt:"In coordinate geometry, what does it mean for a point to be 'on' a line?",answer:"when you substitute its coordinates into the equation, both sides are equal",lv:2},
+],
+
+// ============================================================
+// NUMBER & SETS
+// ============================================================
+number: [
+  // Level 1
+  {prompt:"What is a natural number?",answer:"a positive whole number: 1, 2, 3, ...",lv:1},
+  {prompt:"What is an integer?",answer:"a whole number — positive, negative or zero",lv:1},
+  {prompt:"What is a rational number?",answer:"a number that can be expressed as a fraction p/q",lv:1},
+  {prompt:"What is an irrational number?",answer:"a number that cannot be expressed as a fraction — e.g. √2, π",lv:1},
+  {prompt:"What is a prime number?",answer:"a number with exactly two factors: 1 and itself",lv:1},
+  {prompt:"Is 1 a prime number?",answer:"no — it has only one factor",lv:1},
+  {prompt:"List the first five prime numbers",answer:"2, 3, 5, 7, 11",lv:1},
+  {prompt:"What is scientific notation?",answer:"writing a number as a × 10ⁿ where 1 ≤ a < 10",lv:1},
+  {prompt:"Write 4500 in scientific notation",answer:"4.5 × 10³",lv:1},
+  {prompt:"Write 0.0032 in scientific notation",answer:"3.2 × 10⁻³",lv:1},
+  {prompt:"What is a set?",answer:"a collection of distinct objects or numbers",lv:1},
+  {prompt:"What is the universal set U?",answer:"the set containing all elements under consideration",lv:1},
+  {prompt:"What is A ∪ B?",answer:"the union — all elements in A or B or both",lv:1},
+  {prompt:"What is A ∩ B?",answer:"the intersection — elements that are in both A and B",lv:1},
+  {prompt:"What is A' (complement of A)?",answer:"all elements in U that are not in A",lv:1},
+
+  // Level 2
+  {prompt:"What does #A mean?",answer:"the number of elements in set A",lv:2},
+  {prompt:"If A = {1,2,3} and B = {2,3,4}, find A ∪ B",answer:"{1, 2, 3, 4}",lv:2},
+  {prompt:"If A = {1,2,3} and B = {2,3,4}, find A ∩ B",answer:"{2, 3}",lv:2},
+  {prompt:"Express 60 as a product of prime factors",answer:"2² × 3 × 5",lv:2},
+  {prompt:"Express 84 as a product of prime factors",answer:"2² × 3 × 7",lv:2},
+  {prompt:"Find the HCF of 12 and 18",answer:"6",lv:2},
+  {prompt:"Find the LCM of 4 and 6",answer:"12",lv:2},
+  {prompt:"Find the LCM of 5 and 8",answer:"40",lv:2},
+  {prompt:"Round 3.456 to 2 decimal places",answer:"3.46",lv:2},
+  {prompt:"Round 47,832 to 3 significant figures",answer:"47,800",lv:2},
+  {prompt:"What is the absolute value of −7?",answer:"7",lv:2},
+  {prompt:"Order from least to greatest: ¾, 0.7, 70%",answer:"0.7 = 70% = 70/100 = 7/10 — they are equal; ¾ = 75% is greatest",lv:2},
+
+  // Level 3
+  {prompt:"The Venn diagram formula: #(A ∪ B) =",answer:"#A + #B − #(A ∩ B)",lv:3},
+  {prompt:"In a group of 30, 18 like coffee, 14 like tea, 6 like both. How many like neither?",answer:"#(C∪T) = 18+14−6 = 26; neither = 30−26 = 4",lv:3},
+  {prompt:"What is an empty set?",answer:"a set with no elements — written {} or ∅",lv:3},
+  {prompt:"What is a subset?",answer:"set A is a subset of B if every element of A is in B",lv:3},
+  {prompt:"√2 to 3 decimal places",answer:"1.414",lv:3},
+  {prompt:"√3 to 3 decimal places",answer:"1.732",lv:3},
+  {prompt:"Is √4 rational or irrational?",answer:"rational — √4 = 2",lv:3},
+  {prompt:"Simplify √50",answer:"√(25×2) = 5√2",lv:3},
+  {prompt:"Simplify √72",answer:"√(36×2) = 6√2",lv:3},
+  {prompt:"What is 2³?",answer:"8",lv:3},
+  {prompt:"What is 3⁴?",answer:"81",lv:3},
+  {prompt:"What is 2⁻³?",answer:"1/8",lv:3},
+
+  // Level 4
+  {prompt:"Simplify (2³)²",answer:"2⁶ = 64",lv:4},
+  {prompt:"Simplify 4^(3/2)",answer:"(√4)³ = 2³ = 8",lv:4},
+  {prompt:"Simplify 27^(1/3)",answer:"³√27 = 3",lv:4},
+  {prompt:"What does p^(1/n) mean?",answer:"the nth root of p",lv:4},
+  {prompt:"What does p^(m/n) mean?",answer:"the nth root of p, raised to power m — or (pⁿ)^(1/m)",lv:4},
+  {prompt:"A set has n elements. How many subsets does it have?",answer:"2ⁿ",lv:4},
+  {prompt:"A ∩ B' means",answer:"elements in A but not in B",lv:4},
+  {prompt:"De Morgan's Law: (A ∪ B)' =",answer:"A' ∩ B'",lv:4},
+  {prompt:"De Morgan's Law: (A ∩ B)' =",answer:"A' ∪ B'",lv:4},
+
+  // Level 5
+  {prompt:"Rationalise the denominator of 1/√2",answer:"multiply by √2/√2: √2/2",lv:5},
+  {prompt:"Rationalise 3/(2+√3)",answer:"multiply by (2−√3)/(2−√3): 3(2−√3)/(4−3) = 3(2−√3) = 6−3√3",lv:5},
+  {prompt:"Simplify (√5 + √2)(√5 − √2)",answer:"5 − 2 = 3",lv:5},
+
+  // Level 6
+  {prompt:"Steps to draw a Venn diagram for three sets",answer:"draw U, three overlapping circles A,B,C; fill intersections first working outward",lv:6},
+  {prompt:"How to verify a number is irrational",answer:"show it cannot be written as p/q with integers p,q — or show its decimal is non-terminating non-repeating",lv:6},
+
+  // Level 7
+  {prompt:"In a survey of 100 people: 60 like sport, 45 like music, 30 like both. Find number who like at least one.",answer:"60+45−30 = 75",lv:7},
+  {prompt:"Simplify: (3^(x+1) × 9^x) / 27^x",answer:"3^(x+1) × 3^(2x) / 3^(3x) = 3^(x+1+2x−3x) = 3^1 = 3",lv:7},
+
+  // Level 8
+  {prompt:"Prove √2 is irrational",answer:"assume √2=p/q in lowest terms; then p²=2q²; p even, p=2k; 4k²=2q²; q²=2k²; q even — contradiction",lv:8},
+  {prompt:"In a class of 40: 25 do maths, 20 do science, 10 do both. How many do neither?",answer:"M∪S = 25+20−10 = 35; neither = 40−35 = 5",lv:8},
+  // Extra number & sets items
+  {prompt:"What is a composite number?",answer:"a positive integer with more than two factors — not prime",lv:1},
+  {prompt:"Is 17 prime?",answer:"yes — factors only 1 and 17",lv:1},
+  {prompt:"Is 21 prime?",answer:"no — 21 = 3 × 7",lv:1},
+  {prompt:"Write 36 as a product of prime factors",answer:"2² × 3²",lv:2},
+  {prompt:"Write 120 as a product of prime factors",answer:"2³ × 3 × 5",lv:2},
+  {prompt:"HCF of 24 and 36",answer:"12",lv:2},
+  {prompt:"LCM of 6 and 10",answer:"30",lv:2},
+  {prompt:"LCM of 8 and 12",answer:"24",lv:2},
+  {prompt:"Write 65,000 in scientific notation",answer:"6.5 × 10⁴",lv:2},
+  {prompt:"Write 0.00007 in scientific notation",answer:"7 × 10⁻⁵",lv:2},
+  {prompt:"What is |−15|?",answer:"15",lv:2},
+  {prompt:"What is a subset symbol?",answer:"⊆ — A ⊆ B means every element of A is in B",lv:3},
+  {prompt:"If A ⊆ B, what does B' ⊆ A' tell us?",answer:"taking complements reverses the inclusion",lv:5},
+  {prompt:"A = {1,3,5,7}, B = {3,7,9}. Find A ∩ B.",answer:"{3, 7}",lv:2},
+  {prompt:"A = {1,3,5,7}, B = {3,7,9}. Find A ∪ B.",answer:"{1, 3, 5, 7, 9}",lv:2},
+  {prompt:"In a group of 50: 30 speak French, 25 speak German, 10 speak both. How many speak at least one?",answer:"30 + 25 − 10 = 45",lv:3},
+  {prompt:"Simplify √18",answer:"√(9×2) = 3√2",lv:3},
+  {prompt:"Simplify √98",answer:"√(49×2) = 7√2",lv:3},
+  {prompt:"Simplify: √3 × √12",answer:"√36 = 6",lv:4},
+  {prompt:"What is 16^(1/2)?",answer:"√16 = 4",lv:3},
+  {prompt:"What is 8^(2/3)?",answer:"(³√8)² = 2² = 4",lv:4},
+  {prompt:"What is 25^(3/2)?",answer:"(√25)³ = 5³ = 125",lv:4},
+  {prompt:"Simplify: (√5)²",answer:"5",lv:3},
+  {prompt:"What is the reciprocal of 3/4?",answer:"4/3",lv:2},
+  {prompt:"Express 0.125 as a fraction",answer:"1/8",lv:2},
+  {prompt:"Express 0.375 as a fraction",answer:"3/8",lv:2},
+  {prompt:"Round 0.06745 to 3 significant figures",answer:"0.0675",lv:3},
+  {prompt:"What is an ordered pair?",answer:"a pair of numbers (x, y) where order matters",lv:2},
+  {prompt:"Are the sets {1,2,3} and {3,2,1} equal?",answer:"yes — sets have no order",lv:2},
+  {prompt:"What is the empty set?",answer:"∅ — the set with no elements",lv:2},
+  {prompt:"How many elements does the power set of {a,b,c} have?",answer:"2³ = 8",lv:4},
+  {prompt:"Rationalise 1/√3",answer:"multiply by √3/√3: √3/3",lv:5},
+  {prompt:"Simplify (2 + √3)(2 − √3)",answer:"4 − 3 = 1",lv:5},
+  {prompt:"What is a factor?",answer:"a number that divides exactly into another number",lv:1},
+  {prompt:"Is 0 a natural number?",answer:"no — natural numbers start at 1",lv:1},
+  {prompt:"What does 'integer' mean?",answer:"any whole number: ..., −2, −1, 0, 1, 2, ...",lv:1},
+  {prompt:"Express 2/5 as a decimal",answer:"0.4",lv:1},
+  {prompt:"Express 3/4 as a percentage",answer:"75%",lv:1},
+  {prompt:"HCF of 15 and 25",answer:"5",lv:2},
+  {prompt:"LCM of 3 and 7",answer:"21",lv:2},
+  {prompt:"Write 8,000,000 in scientific notation",answer:"8 × 10⁶",lv:2},
+  {prompt:"Evaluate 2³ + 3²",answer:"8 + 9 = 17",lv:2},
+  {prompt:"What is x¹?",answer:"x",lv:2},
+  {prompt:"Simplify: 2⁴ × 2³",answer:"2⁷ = 128",lv:3},
+  {prompt:"Simplify: 3⁵ ÷ 3²",answer:"3³ = 27",lv:3},
+  {prompt:"If U={1..10}, A={1,3,5,7,9}, find A'",answer:"{2,4,6,8,10}",lv:2},
+  {prompt:"In a class of 25: 15 like art, 12 like music, 5 like both. How many like neither?",answer:"15+12−5=22; neither=25−22=3",lv:3},
+  {prompt:"Simplify √(4/9)",answer:"√4/√9 = 2/3",lv:3},
+  {prompt:"Simplify √(25/16)",answer:"5/4",lv:3},
+  {prompt:"What is 100^(1/2)?",answer:"10",lv:3},
+  {prompt:"What is 64^(1/3)?",answer:"4",lv:3},
+  {prompt:"What is 4^(3/2)?",answer:"(√4)³ = 2³ = 8",lv:4},
+  {prompt:"Simplify: 5√2 + 3√2",answer:"8√2",lv:4},
+  {prompt:"Simplify: 4√3 − √3",answer:"3√3",lv:4},
+  {prompt:"Is π rational or irrational?",answer:"irrational — its decimal is non-terminating and non-repeating",lv:3},
+  {prompt:"Is 0.333... = 1/3 rational?",answer:"yes — it equals the fraction 1/3",lv:3},
+  {prompt:"A = {a,b,c,d}, B = {c,d,e,f}. Find #(A ∩ B).",answer:"A ∩ B = {c,d}; #(A ∩ B) = 2",lv:3},
+  {prompt:"A = {1,2,3,4,5}, B = {4,5,6,7}. Find A' ∩ B where U={1..7}",answer:"A'={6,7}; A'∩B={6,7}",lv:4},
+  {prompt:"If n(A)=12, n(B)=10, n(A∩B)=4, find n(A∪B)",answer:"12+10−4=18",lv:3},
+  {prompt:"Express 1.25 as a fraction",answer:"5/4",lv:2},
+  {prompt:"Express 0.6 recurring as a fraction",answer:"2/3",lv:5},
+],
+
+}; // end TERMS
+
+// ============================================================
+// GAME ENGINE
+// ============================================================
+const UNCLE_UNLOCK = 5;
+const PENALTY_SECS = 20;
+const QUESTIONS_PER_ROUND = 10;
+
+var currentCat = 'algebra';
+var currentLevel = 1;
+var currentItems = [];
+var startTime, timerInterval;
+
+const levelList = document.getElementById('level-list');
+const gameContainer = document.getElementById('game');
+const questionsContainer = document.getElementById('questions');
+const resultsContainer = document.getElementById('results');
+
+function storageKey(s) { return 'lcm_turbo_' + s; }
+function getUnlocked() { return parseInt(localStorage.getItem(storageKey('unlocked')) || '1'); }
+function setUnlocked(l) { if (l > getUnlocked()) localStorage.setItem(storageKey('unlocked'), l); }
+function getBest(c, l) { return localStorage.getItem(storageKey('best_' + c + '_' + l)); }
+function setBest(c, l, s) { var p = parseInt(getBest(c, l) || '0'); if (s > p) localStorage.setItem(storageKey('best_' + c + '_' + l), s); }
+
+function getTotalStars() {
+  var t = 0;
+  ['algebra','geometry','statistics','functions','financial','coordinate','number'].forEach(function(c) {
+    for (var v = 1; v <= 8; v++) t += parseInt(getBest(c, v) || '0');
+  });
+  return t;
+}
+
+function uncleUnlocked() { return getTotalStars() >= UNCLE_UNLOCK; }
+
+function getTurboData() {
+  var cats = ['algebra','geometry','statistics','functions','financial','coordinate','number'];
+  var labels = { algebra:'Algebra', geometry:'Geometry & Trig', statistics:'Statistics', functions:'Functions', financial:'Financial Maths', coordinate:'Coordinate Geometry', number:'Number & Sets' };
+  var data = {};
+  cats.forEach(function(c) {
+    data[c] = { label: labels[c], levels: {} };
+    for (var l = 1; l <= 8; l++) { var s = getBest(c, l); if (s) data[c].levels[l] = parseInt(s); }
+  });
+  return data;
+}
+
+function selectCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderLevels();
+}
+
+function renderLevels() {
+  levelList.style.display = 'flex';
+  gameContainer.style.display = 'none';
+  levelList.innerHTML = '';
+  updateProgress();
+
+  var unlocked = getUnlocked();
+  var zones = { 1:'Levels 1–3 · Core Knowledge', 4:'Levels 4–5 · Application', 6:'Levels 6–8 · Exam Standard' };
+
+  for (var i = 1; i <= 8; i++) {
+    if (zones[i]) {
+      var zl = document.createElement('div');
+      zl.className = 'zone-label';
+      zl.textContent = zones[i];
+      levelList.appendChild(zl);
+    }
+    var pool = getPool(currentCat, i);
+    if (!pool.length) continue;
+
+    var btn = document.createElement('button');
+    var best = getBest(currentCat, i);
+    var locked = i > unlocked;
+    var stars = best ? '⭐'.repeat(parseInt(best)) + '☆'.repeat(3 - parseInt(best)) : '';
+    var isAdv = i >= 6;
+
+    btn.className = 'level-btn' + (isAdv ? ' adv' : '');
+    btn.type = 'button';
+    btn.innerHTML = '<span>' + (locked ? '🔒 ' : '') + 'Level ' + i + ' <span style="font-size:0.72rem;opacity:0.6">(' + pool.length + ' items)</span></span>' +
+      '<span class="level-badge">' + (stars || '—') + '</span>';
+    btn.disabled = locked;
+    (function(lv) { btn.addEventListener('click', function() { startGame(lv); }); })(i);
+    levelList.appendChild(btn);
+  }
+
+  if (uncleUnlocked()) {
+    var eb = document.createElement('button');
+    eb.type = 'button';
+    eb.textContent = '📐 Meet The Uncle →';
+    eb.className = 'level-btn uncle-btn';
+    eb.addEventListener('click', function() {
+      localStorage.setItem('lcm_turbo_data', JSON.stringify(getTurboData()));
+      window.location.href = 'lc-maths-uncle.html';
+    });
+    levelList.appendChild(eb);
+  }
+}
+
+function getPool(cat, level) {
+  return (TERMS[cat] || []).filter(function(p) { return p.lv === level; });
+}
+
+function getPlayPool(cat, level) {
+  var exact = (TERMS[cat] || []).filter(function(p) { return p.lv === level; });
+  var adjacent = (TERMS[cat] || []).filter(function(p) { return Math.abs(p.lv - level) === 1; });
+  return shuffleArray(exact.slice()).concat(shuffleArray(adjacent.slice()));
+}
+
+function startGame(level) {
+  currentLevel = level;
+  var pool = getPlayPool(currentCat, level);
+  currentItems = shuffleArray(pool.slice()).slice(0, QUESTIONS_PER_ROUND);
+
+  levelList.style.display = 'none';
+  gameContainer.style.display = 'block';
+  questionsContainer.innerHTML = '';
+  resultsContainer.innerHTML = '';
+
+  currentItems.forEach(function(item) {
+    var div = document.createElement('div');
+    div.innerHTML = '<div><strong>' + escHtml(item.prompt) + '</strong></div>' +
+      '<input type="text" data-answer="' + escHtml(item.answer) + '" placeholder="Your answer..." autocomplete="off" autocorrect="off" spellcheck="false">';
+    var inp = div.querySelector('input');
+    inp.addEventListener('paste', function(e) { e.preventDefault(); });
+    questionsContainer.appendChild(div);
+  });
+
+  startTime = Date.now();
+  timerInterval = setInterval(function() {
+    document.getElementById('timer').textContent = 'Time: ' + Math.floor((Date.now() - startTime) / 1000) + 's';
+  }, 1000);
+
+  var first = questionsContainer.querySelector('input');
+  if (first) first.focus();
+}
+
+document.getElementById('submit').addEventListener('click', function() {
+  clearInterval(timerInterval);
+  var elapsed = Math.floor((Date.now() - startTime) / 1000);
+  var penalty = 0;
+  var total = currentItems.length;
+  var lenientCorrect = 0;
+  var strictCorrect = 0;
+
+  var results = [];
+  document.querySelectorAll('#questions input').forEach(function(input) {
+    var userAns = input.value.trim();
+    var correctAns = input.dataset.answer;
+    var strict = normalise(userAns) === normalise(correctAns);
+    var lenient = strict;
+    if (!lenient) {
+      var uWords = normalise(userAns).split(' ').filter(function(w) { return w.length > 1; });
+      var cWords = normalise(correctAns).split(' ').filter(function(w) { return w.length > 1; });
+      if (uWords.length && cWords.length) {
+        var matches = uWords.filter(function(w) { return cWords.indexOf(w) !== -1; }).length;
+        lenient = matches >= Math.ceil(Math.min(uWords.length, cWords.length) * 0.6);
+      }
+    }
+    results.push({ userAns:userAns, correctAns:correctAns, strict:strict, lenient:lenient, prompt:input.closest('div').querySelector('strong').textContent });
+    if (lenient) lenientCorrect++;
+    if (strict) strictCorrect++;
+  });
+
+  document.querySelectorAll('#questions input').forEach(function(input, idx) {
+    if (results[idx].lenient) { input.style.border='2px solid #16a34a'; input.style.background='#f0fdf4'; }
+    else { penalty += PENALTY_SECS; input.style.border='2px solid #dc2626'; input.style.background='#fef2f2'; }
+  });
+
+  var totalTime = elapsed + penalty;
+  var timeLimit = 180 - (currentLevel - 1) * 15;
+  var stars = 0;
+  if (strictCorrect === total && totalTime <= timeLimit) stars = 3;
+  else if (lenientCorrect === total) stars = 2;
+  else if (lenientCorrect >= Math.ceil(total * 0.5)) stars = 1;
+
+  setBest(currentCat, currentLevel, stars);
+  if (stars >= 1) setUnlocked(currentLevel + 1);
+
+  resultsContainer.innerHTML = '';
+
+  if (lenientCorrect === total) {
+    var cel = document.createElement('div');
+    cel.className = 'perfect-celebration';
+    cel.textContent = stars === 3 ? '🎉 PERFECT — 3 stars!' : '✅ All correct!';
+    resultsContainer.appendChild(cel);
+  }
+
+  var sum = document.createElement('div');
+  sum.innerHTML = '<h3>Done!</h3><p>Correct: ' + lenientCorrect + '/' + total + '</p>' +
+    '<p>Time: ' + elapsed + 's + Penalty: ' + penalty + 's = <strong>' + totalTime + 's</strong></p>' +
+    '<p style="font-size:1.4rem">' + '⭐'.repeat(stars) + '☆'.repeat(3-stars) + '</p>';
+  resultsContainer.appendChild(sum);
+
+  var missed = results.filter(function(r) { return !r.lenient; });
+  if (missed.length) {
+    var mt = document.createElement('h4');
+    mt.textContent = 'What you missed:';
+    mt.style.marginTop = '10px';
+    resultsContainer.appendChild(mt);
+    missed.forEach(function(r) {
+      var p = document.createElement('p');
+      p.style.cssText = 'margin:6px 0;font-size:0.9rem;';
+      p.innerHTML = '<strong>' + escHtml(r.prompt) + '</strong><br>✅ <span style="color:#16a34a">' + escHtml(r.correctAns) + '</span><br>❌ <span style="color:#dc2626">' + escHtml(r.userAns || '(blank)') + '</span>';
+      resultsContainer.appendChild(p);
+    });
+  }
+
+  if (stars >= 1) {
+    var um = document.createElement('p');
+    um.className = 'unlock-msg';
+    um.textContent = '🔓 Level ' + (currentLevel + 1) + ' unlocked!';
+    resultsContainer.appendChild(um);
+  }
+
+  updateProgress();
+
+  if (uncleUnlocked()) {
+    var bm = document.createElement('p');
+    bm.className = 'unlock-msg';
+    bm.innerHTML = '📐 The Uncle is ready! <a href="lc-maths-uncle.html" style="color:#1d4ed8;font-weight:bold;" onclick="saveTurboData()">Meet The Uncle →</a>';
+    resultsContainer.appendChild(bm);
+  }
+
+  var tb = document.createElement('button');
+  tb.textContent = 'Try Again'; tb.className = 'try-again'; tb.type = 'button';
+  tb.onclick = function() { startGame(currentLevel); };
+  resultsContainer.appendChild(tb);
+
+  var bb = document.createElement('button');
+  bb.textContent = '← Back'; bb.id = 'back-button'; bb.type = 'button';
+  bb.onclick = function() { renderLevels(); };
+  resultsContainer.appendChild(bb);
+});
+
+function saveTurboData() { localStorage.setItem('lcm_turbo_data', JSON.stringify(getTurboData())); }
+
+function updateProgress() {
+  var stars = getTotalStars();
+  var pct = Math.min(100, Math.round((stars / UNCLE_UNLOCK) * 100));
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  var banner = document.getElementById('star-banner');
+  if (uncleUnlocked()) {
+    banner.textContent = '🎉 ' + stars + ' stars — The Uncle is unlocked!';
+    banner.style.background = '#eff6ff'; banner.style.borderColor = '#1d4ed8'; banner.style.color = '#1d4ed8';
+  } else {
+    banner.textContent = '⭐ ' + stars + ' star' + (stars !== 1 ? 's' : '') + ' — need ' + UNCLE_UNLOCK + ' to unlock The Uncle';
+  }
+}
+
+function normalise(s) {
+  return String(s).toLowerCase().replace(/['']/g,'').replace(/[,;:.!?]/g,'').replace(/\s+/g,' ').trim();
+}
+function shuffleArray(a) { return a.sort(function() { return Math.random() - 0.5; }); }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+
+(function() { renderLevels(); })();
+</script>
+</body>
+</html>
