@@ -35,7 +35,7 @@
     .level-badge { font-size: 0.7rem; background: rgba(255,255,255,0.22); padding: 2px 8px; border-radius: 10px; }
     .uncle-btn { background: linear-gradient(135deg, var(--primary), #0f2240) !important; justify-content: center !important; font-size: 1rem !important; }
     #game { display: none; margin-top: 16px; }
-    #timer { font-size: 1.3rem; color: var(--blue); font-weight: 900; margin-bottom: 14px; }
+    #timer { display: none; }
     #questions div { margin: 14px 0; font-size: 0.97rem; text-align: left; }
     #questions input { font-size: 0.97rem; padding: 9px 11px; width: 100%; margin-top: 5px; border: 2px solid var(--border); border-radius: 8px; font-family: 'Nunito', sans-serif; box-sizing: border-box; }
     #questions input:focus { outline: none; border-color: var(--blue); }
@@ -1025,10 +1025,8 @@ document.getElementById('submit').addEventListener('click', function() {
     else { penalty += PENALTY_SECS; input.style.border='2px solid #dc2626'; input.style.background='#fef2f2'; }
   });
 
-  var totalTime = elapsed + penalty;
-  var timeLimit = 180 - (currentLevel - 1) * 15;
   var stars = 0;
-  if (strictCorrect === total && totalTime <= timeLimit) stars = 3;
+  if (strictCorrect === total) stars = 3;
   else if (lenientCorrect === total) stars = 2;
   else if (lenientCorrect >= Math.ceil(total * 0.5)) stars = 1;
 
@@ -1046,7 +1044,6 @@ document.getElementById('submit').addEventListener('click', function() {
 
   var sum = document.createElement('div');
   sum.innerHTML = '<h3>Done!</h3><p>Correct: ' + lenientCorrect + '/' + total + '</p>' +
-    '<p>Time: ' + elapsed + 's + Penalty: ' + penalty + 's = <strong>' + totalTime + 's</strong></p>' +
     '<p style="font-size:1.4rem">' + '⭐'.repeat(stars) + '☆'.repeat(3-stars) + '</p>';
   resultsContainer.appendChild(sum);
 
