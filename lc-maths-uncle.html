@@ -524,10 +524,69 @@ coordinate: [
 
 number: [
   {
-    stem: "Sets and Venn diagrams.",
+    type: 'venn',
+    stem: "In a class of 30 students, 18 study French, 14 study German and 6 study both.",
+    venn: {
+      labelA: 'French', labelB: 'German',
+      total: 30,
+      nA: 18, nB: 14, nAB: 6,
+      regions: {
+        onlyA: 12,   // French only
+        both: 6,     // Both
+        onlyB: 8,    // German only
+        neither: 4   // Neither
+      },
+      formula: '#(F∪G) = 18 + 14 − 6 = 26; Neither = 30 − 26 = 4',
+      marks: { onlyA:3, both:3, onlyB:3, neither:3, formula:3 }
+    },
     parts: [
-      {label:"(a)", text:"In a class of 28 students: 18 study French, 12 study German, 6 study both. Draw a Venn diagram and find the number who study neither.", marks:12},
-      {label:"(b)", text:"If U = {1,2,3,4,5,6,7,8,9,10}, A = {2,4,6,8,10}, B = {1,2,3,4,5}, find A ∩ B and A' ∪ B.", marks:13},
+      {label:"(a)", text:"Fill in the Venn diagram above.", marks:9},
+      {label:"(b)", text:"How many students study neither French nor German?", marks:3},
+      {label:"(c)", text:"Using the formula #(A∪B) = #A + #B − #(A∩B), verify your answer.", marks:8},
+    ]
+  },
+  {
+    type: 'venn',
+    stem: "In a year group of 50 students, 32 play sport, 25 play a musical instrument, and 10 do both.",
+    venn: {
+      labelA: 'Sport', labelB: 'Music',
+      total: 50,
+      nA: 32, nB: 25, nAB: 10,
+      regions: {
+        onlyA: 22,
+        both: 10,
+        onlyB: 15,
+        neither: 3
+      },
+      formula: '#(S∪M) = 32 + 25 − 10 = 47; Neither = 50 − 47 = 3',
+      marks: { onlyA:3, both:3, onlyB:3, neither:3, formula:3 }
+    },
+    parts: [
+      {label:"(a)", text:"Fill in the Venn diagram.", marks:9},
+      {label:"(b)", text:"How many students do neither?", marks:3},
+      {label:"(c)", text:"Show your working using the union formula.", marks:8},
+    ]
+  },
+  {
+    type: 'venn',
+    stem: "In a survey of 40 people, 24 own a car, 18 own a bicycle, and 8 own both.",
+    venn: {
+      labelA: 'Car', labelB: 'Bicycle',
+      total: 40,
+      nA: 24, nB: 18, nAB: 8,
+      regions: {
+        onlyA: 16,
+        both: 8,
+        onlyB: 10,
+        neither: 6
+      },
+      formula: '#(C∪B) = 24 + 18 − 8 = 34; Neither = 40 − 34 = 6',
+      marks: { onlyA:3, both:3, onlyB:3, neither:3, formula:3 }
+    },
+    parts: [
+      {label:"(a)", text:"Draw and fill in the Venn diagram.", marks:9},
+      {label:"(b)", text:"How many people own neither?", marks:3},
+      {label:"(c)", text:"Verify using #(A∪B) = #A + #B − #(A∩B).", marks:8},
     ]
   },
   {
@@ -697,14 +756,19 @@ function giveQuestion(topic) {
     partsHtml;
   body.appendChild(card);
 
-  var zone = document.createElement('div');
-  zone.className = 'write-zone'; zone.id = 'write-zone';
-  zone.innerHTML =
-    '<div class="write-label"><span>Your working</span><span id="wc">0 words</span></div>' +
-    '<div class="write-hint">Write every step — formula, substitution, calculation. The marks are in the working.</div>' +
-    '<textarea class="write-ta" id="write-ta" placeholder="Show all your working here, step by step..." oninput="updateWC()"></textarea>' +
-    '<div class="write-footer"><button class="submit-btn" type="button" id="sub-btn" onclick="submitAnswer()">Submit for marking →</button></div>';
-  body.appendChild(zone);
+  // Venn diagram or standard text zone
+  if (q.type === 'venn') {
+    buildVennUI(q, body);
+  } else {
+    var zone = document.createElement('div');
+    zone.className = 'write-zone'; zone.id = 'write-zone';
+    zone.innerHTML =
+      '<div class="write-label"><span>Your working</span><span id="wc">0 words</span></div>' +
+      '<div class="write-hint">Write every step — formula, substitution, calculation. The marks are in the working.</div>' +
+      '<textarea class="write-ta" id="write-ta" placeholder="Show all your working here, step by step..." oninput="updateWC()"></textarea>' +
+      '<div class="write-footer"><button class="submit-btn" type="button" id="sub-btn" onclick="submitAnswer()">Submit for marking →</button></div>';
+    body.appendChild(zone);
+  }
   scrollBottom();
 
   clearTimeout(state.nudgeT1); clearTimeout(state.nudgeT2);
@@ -725,6 +789,12 @@ function updateWC() {
 }
 
 async function submitAnswer() {
+  // Handle venn questions differently
+  if (state.currentQuestion && state.currentQuestion.q.type === 'venn') {
+    await submitVenn();
+    return;
+  }
+
   var text = document.getElementById('write-ta').value.trim();
   if (!text || text.split(/\s+/).length < 3) { addNudge('Write something — even the formula. Give me something to mark.'); return; }
 
@@ -933,6 +1003,204 @@ function renderGraph() {
       '<div class="att-total">'+a.total+'<span style="font-size:0.68rem;color:var(--muted)">/'+a.maxTotal+'</span></div>';
     list.appendChild(row);
   });
+}
+
+
+// ============================================================
+// VENN DIAGRAM ENGINE
+// ============================================================
+function buildVennUI(q, body) {
+  var v = q.venn;
+  var wrap = document.createElement('div');
+  wrap.className = 'venn-wrap';
+  wrap.id = 'venn-wrap';
+
+  // SVG Venn — two overlapping circles inside a rectangle (U)
+  // ViewBox: 0 0 340 200
+  // Circle A: cx=120 cy=100 r=80
+  // Circle B: cx=220 cy=100 r=80
+  // Only-A centre ~ (75,100), Both ~ (170,100), Only-B ~ (265,100), Neither ~ (30,30)
+  wrap.innerHTML =
+    '<div class="venn-label-top">🔵 Fill in the Venn Diagram</div>' +
+    '<div class="venn-svg-wrap" id="venn-svg-wrap">' +
+      '<svg class="venn-svg" viewBox="0 0 340 210" xmlns="http://www.w3.org/2000/svg">' +
+        // U rectangle
+        '<rect x="5" y="5" width="330" height="200" rx="12" fill="none" stroke="#94a3b8" stroke-width="2"/>' +
+        '<text x="318" y="22" font-size="13" fill="#94a3b8" text-anchor="end" font-family="Nunito,sans-serif" font-weight="700">U</text>' +
+        // Circle A
+        '<circle cx="130" cy="105" r="82" fill="rgba(29,78,216,0.08)" stroke="#1d4ed8" stroke-width="2.5"/>' +
+        // Circle B
+        '<circle cx="210" cy="105" r="82" fill="rgba(217,119,6,0.08)" stroke="#d97706" stroke-width="2.5"/>' +
+        // Labels
+        '<text x="80" y="38" font-size="13" fill="#1d4ed8" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800">' + escHtml(v.labelA) + '</text>' +
+        '<text x="260" y="38" font-size="13" fill="#d97706" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800">' + escHtml(v.labelB) + '</text>' +
+        // Input placeholder circles (visual guides)
+        '<circle cx="85" cy="110" r="28" fill="rgba(29,78,216,0.06)" stroke="none"/>' +
+        '<circle cx="170" cy="110" r="28" fill="rgba(100,100,100,0.06)" stroke="none"/>' +
+        '<circle cx="255" cy="110" r="28" fill="rgba(217,119,6,0.06)" stroke="none"/>' +
+        // "Neither" box guide
+        '<rect x="10" y="155" width="44" height="44" rx="6" fill="rgba(100,100,100,0.05)" stroke="none"/>' +
+      '</svg>' +
+      // Floating inputs positioned over SVG using % positions
+      '<div class="venn-input-overlay" id="venn-overlay"></div>' +
+    '</div>' +
+    '<div class="venn-legend">' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#1d4ed8"></span>' + escHtml(v.labelA) + ' only</span>' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#64748b"></span>Both</span>' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#d97706"></span>' + escHtml(v.labelB) + ' only</span>' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#94a3b8"></span>Neither</span>' +
+    '</div>' +
+    '<div class="venn-hint">Tap each box and type the number. Don\'t forget the &quot;neither&quot; box (bottom left).</div>';
+
+  body.appendChild(wrap);
+
+  // Position inputs as % of SVG viewbox (340x210)
+  // onlyA: 85/340=25%, 110/210=52%
+  // both:  170/340=50%, 110/210=52%
+  // onlyB: 255/340=75%, 110/210=52%
+  // neither: 32/340=9.4%, 177/210=84%
+  var positions = [
+    {id:'onlyA',  left:'25%', top:'52%', label:v.labelA+' only'},
+    {id:'both',   left:'50%', top:'52%', label:'Both'},
+    {id:'onlyB',  left:'75%', top:'52%', label:v.labelB+' only'},
+    {id:'neither',left:'9.5%',top:'84%', label:'Neither'},
+  ];
+
+  var overlay = document.getElementById('venn-overlay');
+  positions.forEach(function(pos) {
+    var inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'venn-inp';
+    inp.id = 'venn-' + pos.id;
+    inp.placeholder = '?';
+    inp.min = '0';
+    inp.setAttribute('aria-label', pos.label);
+    inp.style.left = pos.left;
+    inp.style.top = pos.top;
+    overlay.appendChild(inp);
+  });
+
+  // Working text area below
+  var zone = document.createElement('div');
+  zone.className = 'write-zone'; zone.id = 'write-zone';
+  zone.style.marginTop = '12px';
+  zone.innerHTML =
+    '<div class="write-label"><span>Show your working</span><span id="wc">0 words</span></div>' +
+    '<div class="write-hint">Write out the formula: #(A∪B) = #A + #B − #(A∩B). Show every step.</div>' +
+    '<textarea class="write-ta" id="write-ta" placeholder="e.g. #(F∪G) = 18 + 12 − 6 = 24&#10;Neither = 30 − 24 = 6" oninput="updateWC()"></textarea>' +
+    '<div class="write-footer"><button class="submit-btn" type="button" id="sub-btn" onclick="submitAnswer()">Submit for marking →</button></div>';
+  body.appendChild(zone);
+}
+
+async function submitVenn() {
+  var q = state.currentQuestion.q;
+  var v = q.venn;
+
+  // Read values
+  var userVals = {
+    onlyA:   parseInt(document.getElementById('venn-onlyA').value) || 0,
+    both:    parseInt(document.getElementById('venn-both').value) || 0,
+    onlyB:   parseInt(document.getElementById('venn-onlyB').value) || 0,
+    neither: parseInt(document.getElementById('venn-neither').value) || 0,
+  };
+  var workingText = (document.getElementById('write-ta') || {}).value || '';
+
+  // Colour inputs
+  ['onlyA','both','onlyB','neither'].forEach(function(k) {
+    var inp = document.getElementById('venn-' + k);
+    if (inp) {
+      inp.className = 'venn-inp ' + (userVals[k] === v.regions[k] ? 'correct' : 'wrong');
+      inp.disabled = true;
+    }
+  });
+
+  // Client-side partial marking
+  var mks = v.marks;
+  var partScores = [0, 0, 0]; // (a) venn 9m, (b) neither 3m, (c) formula 8m
+  var diagramScore = 0;
+  if (userVals.onlyA === v.regions.onlyA)   diagramScore += mks.onlyA;
+  if (userVals.both  === v.regions.both)    diagramScore += mks.both;
+  if (userVals.onlyB === v.regions.onlyB)   diagramScore += mks.onlyB;
+  partScores[0] = diagramScore;
+  partScores[1] = (userVals.neither === v.regions.neither) ? mks.neither : 0;
+
+  // Formula working — check for key numbers in text
+  var wt = workingText.toLowerCase();
+  var hasFormula = (wt.includes(String(v.nA)) && wt.includes(String(v.nB)) && wt.includes(String(v.nAB)));
+  var hasAnswer  = wt.includes(String(v.regions.neither));
+  partScores[2] = hasFormula && hasAnswer ? mks.formula :
+                  hasFormula ? Math.round(mks.formula * 0.6) : 0;
+
+  var totalMarks = q.parts.reduce(function(s,p){return s+(parseInt(p.marks)||0);},0);
+  var scored = partScores.reduce(function(a,b){return a+b;},0);
+
+  // Build working summary to send to Uncle
+  var summary =
+    'Student filled Venn diagram: ' +
+    v.labelA + ' only = ' + userVals.onlyA + ' (correct: ' + v.regions.onlyA + '), ' +
+    'Both = ' + userVals.both + ' (correct: ' + v.regions.both + '), ' +
+    v.labelB + ' only = ' + userVals.onlyB + ' (correct: ' + v.regions.onlyB + '), ' +
+    'Neither = ' + userVals.neither + ' (correct: ' + v.regions.neither + '). ' +
+    'Diagram marks: ' + diagramScore + '/' + (mks.onlyA+mks.both+mks.onlyB) + '. ' +
+    'Neither mark: ' + partScores[1] + '/' + mks.neither + '. ' +
+    'Formula working: ' + (workingText || '(none written)') + '. ' +
+    'Formula marks awarded: ' + partScores[2] + '/' + mks.formula + '. ' +
+    'Total: ' + scored + '/' + totalMarks + '. ' +
+    'Correct answer: ' + v.formula + '.';
+
+  // Disable UI
+  if (document.getElementById('write-ta')) document.getElementById('write-ta').disabled = true;
+  if (document.getElementById('sub-btn')) document.getElementById('sub-btn').disabled = true;
+  clearTimeout(state.nudgeT1); clearTimeout(state.nudgeT2);
+
+  var typing = addTyping();
+
+  try {
+    var topic = state.currentTopic;
+    var turboSummary = buildTurboSummary();
+    var attemptNum = state.attempts.length + 1;
+    var prevTotal = state.attempts.length > 0 ? state.attempts[state.attempts.length-1].total : null;
+
+    var res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        mode: 'maths_mark',
+        name: state.name,
+        topic: topic,
+        question_stem: q.stem,
+        parts: q.parts,
+        working: summary,
+        turbo_summary: turboSummary,
+        attempt_number: attemptNum,
+        previous_total: prevTotal,
+        all_attempts: state.attempts.slice(-10),
+        venn_context: {
+          part_scores: partScores,
+          total: scored,
+          pre_marked: true,
+          correct_regions: v.regions,
+          user_regions: userVals,
+          formula: v.formula,
+        }
+      })
+    });
+
+    var data = await res.json();
+    removeTyping(typing);
+
+    if (data.mark) {
+      // Override with our client-side marks — they are accurate
+      data.mark.part_scores = partScores;
+      data.mark.total = scored;
+      showMark(data.mark, topic, q);
+    } else {
+      addUnMsg('Something went wrong. Try again.');
+    }
+  } catch(e) {
+    removeTyping(typing);
+    addUnMsg('Lost the connection. Check your signal and try again.');
+  }
 }
 
 // ============================================================
