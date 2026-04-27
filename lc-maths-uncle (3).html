@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>The Uncle — LC Maths OL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1e293b; --paper: #f8fafc; --aged: #f1f5f9;
+      --un: #1e3a5f; --un-light: #eff6ff;
+      --gold: #d97706; --green: #15803d; --muted: #64748b; --border: #e2e8f0;
+      --blue: #1d4ed8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--paper); min-height: 100vh; color: var(--ink); }
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* WELCOME */
+    #screen-welcome { justify-content: center; align-items: center; background: #0f172a; padding: 30px 20px; }
+    .welcome-inner { max-width: 460px; width: 100%; text-align: center; }
+    .un-figure { margin: 0 auto 16px; display: block; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(29,78,216,0.5)); }
+    @keyframes float { 0%,100%{transform:translateY(0) rotate(-1deg);} 50%{transform:translateY(-10px) rotate(1deg);} }
+    .welcome-title { font-family: 'DM Serif Display', serif; font-size: 2.4rem; color: white; margin-bottom: 4px; }
+    .welcome-sub { color: rgba(255,255,255,0.38); font-size: 0.75rem; margin-bottom: 28px; letter-spacing: 1px; text-transform: uppercase; }
+    .welcome-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 22px 20px; margin-bottom: 14px; text-align: left; }
+    .field-label { color: rgba(255,255,255,0.45); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 7px; display: block; }
+    .field-input { width: 100%; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.12); border-radius: 10px; color: white; font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 600; padding: 11px 14px; outline: none; transition: border-color 0.2s; }
+    .field-input:focus { border-color: var(--blue); }
+    .field-input::placeholder { color: rgba(255,255,255,0.18); }
+    .enter-btn { width: 100%; padding: 15px; background: var(--blue); color: white; font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; transition: filter 0.2s; margin-top: 10px; }
+    .enter-btn:hover { filter: brightness(1.1); }
+    .turbo-note { color: rgba(255,255,255,0.28); font-size: 0.75rem; margin-top: 12px; font-style: italic; }
+
+    /* REVEAL */
+    #screen-reveal { justify-content: center; align-items: center; background: #0f172a; padding: 40px 20px; }
+    .reveal-inner { max-width: 440px; width: 100%; text-align: center; }
+    .reveal-icon { font-size: 5rem; display: block; animation: float 2s ease-in-out infinite; margin-bottom: 14px; }
+    .reveal-text { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: white; margin-bottom: 10px; line-height: 1.4; }
+    .reveal-sub { color: rgba(255,255,255,0.42); font-size: 0.88rem; margin-bottom: 28px; line-height: 1.65; white-space: pre-line; }
+    .reveal-btn { background: var(--blue); color: white; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1rem; padding: 14px 36px; border: none; border-radius: 12px; cursor: pointer; }
+
+    /* COACH */
+    #screen-coach { background: var(--paper); max-width: 680px; margin: 0 auto; width: 100%; }
+    .coach-header { background: #0f172a; padding: 12px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; flex-shrink: 0; }
+    .ch-av { font-size: 1.5rem; animation: float 4s ease-in-out infinite; }
+    .ch-info { flex: 1; }
+    .ch-name { font-family: 'DM Serif Display', serif; color: white; font-size: 0.9rem; }
+    .ch-sub { color: rgba(255,255,255,0.38); font-size: 0.68rem; }
+    .ch-actions { display: flex; gap: 6px; }
+    .hdr-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.55); font-family: 'Nunito', sans-serif; font-size: 0.7rem; font-weight: 700; padding: 5px 10px; border-radius: 7px; cursor: pointer; }
+    .hdr-btn:hover { background: rgba(255,255,255,0.14); color: white; }
+
+    /* Topic bar */
+    .topic-bar { display: flex; background: rgba(0,0,0,0.5); flex-shrink: 0; overflow-x: auto; }
+    .topic-pip { flex: 1; min-width: 68px; padding: 8px 4px; text-align: center; font-size: 0.58rem; color: rgba(255,255,255,0.3); font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .topic-pip.active { color: white; background: rgba(29,78,216,0.5); }
+
+    .coach-body { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* Messages */
+    .un-msg { display: flex; gap: 9px; align-self: flex-start; max-width: 94%; animation: msgIn 0.3s ease; }
+    @keyframes msgIn { from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);} }
+    .un-av { width: 32px; height: 32px; border-radius: 50%; background: var(--un); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+    .un-bub { background: white; border: 1px solid var(--border); border-radius: 14px; border-top-left-radius: 4px; padding: 12px 15px; font-size: 0.9rem; line-height: 1.6; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .un-bub p { margin-bottom: 8px; }
+    .un-bub p:last-child { margin-bottom: 0; }
+
+    /* Question card */
+    .q-card { background: white; border: 2px solid var(--blue); border-radius: 14px; padding: 16px 18px; }
+    .q-card-label { font-size: 0.66rem; font-weight: 900; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .q-card-topic { font-size: 0.72rem; color: var(--muted); margin-bottom: 10px; }
+    .q-badge { background: var(--un-light); border: 1px solid var(--blue); border-radius: 6px; padding: 2px 8px; font-size: 0.64rem; font-weight: 700; color: var(--blue); }
+    .q-card-stem { font-family: 'DM Serif Display', serif; font-size: 1rem; color: var(--ink); margin-bottom: 12px; line-height: 1.5; }
+    .q-parts { list-style: none; }
+    .q-parts li { font-size: 0.88rem; padding: 6px 0 6px 24px; position: relative; border-bottom: 1px solid var(--border); line-height: 1.5; }
+    .q-parts li:last-child { border-bottom: none; }
+    .q-parts li::before { content: attr(data-label); position: absolute; left: 0; color: var(--blue); font-weight: 900; font-size: 0.78rem; }
+    .marks-chip { display: inline-block; background: var(--un-light); border: 1px solid var(--blue); border-radius: 8px; padding: 2px 9px; font-size: 0.68rem; font-weight: 700; color: var(--blue); margin-left: 8px; }
+
+    /* Write zone */
+    .sym-bar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+    .sym-btn { background: var(--un-light); border: 1.5px solid var(--blue); color: var(--blue); font-size: 0.95rem; font-weight: 800; padding: 6px 9px; border-radius: 7px; cursor: pointer; font-family: 'Nunito', sans-serif; line-height: 1; transition: background 0.12s; user-select: none; -webkit-user-select: none; }
+    .sym-btn:active { background: var(--blue); color: white; }
+    .write-zone { background: white; border: 2px solid var(--border); border-radius: 14px; padding: 14px 16px; transition: border-color 0.2s; }
+    .write-zone:focus-within { border-color: var(--blue); }
+    .write-label { font-size: 0.66rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .write-hint { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; font-style: italic; }
+    .write-ta { width: 100%; border: none; outline: none; font-family: 'Nunito', sans-serif; font-size: 0.93rem; line-height: 1.7; color: var(--ink); resize: none; min-height: 180px; background: none; }
+    .write-ta::placeholder { color: #ccc; font-style: italic; }
+    .write-footer { display: flex; justify-content: flex-end; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px; }
+    .submit-btn { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 11px 24px; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 0.92rem; cursor: pointer; }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Mark card */
+    .mark-card { background: white; border: 2px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+    .mark-label { font-size: 0.66rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+    .mark-parts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .mark-part-row { display: flex; align-items: center; gap: 8px; background: var(--aged); border-radius: 8px; padding: 8px 12px; }
+    .mark-part-label { font-weight: 900; color: var(--blue); font-size: 0.8rem; min-width: 24px; }
+    .mark-part-text { font-size: 0.8rem; flex: 1; }
+    .mark-part-score { font-weight: 900; font-size: 0.9rem; min-width: 32px; text-align: right; }
+    .mark-total { text-align: center; border-radius: 10px; padding: 14px; margin: 12px 0; color: white; }
+    .mark-total-num { font-size: 2.2rem; font-weight: 900; }
+    .mark-total-sub { font-size: 0.78rem; opacity: 0.75; margin-top: 3px; }
+    .mark-feedback { font-size: 0.87rem; line-height: 1.6; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+    .mark-feedback p { margin-bottom: 8px; }
+    .mark-feedback p:last-child { margin-bottom: 0; }
+
+    /* Grade prediction */
+    .grade-predict { background: #0f172a; border-radius: 12px; padding: 14px 16px; margin-top: 12px; }
+    .grade-predict-label { font-size: 0.62rem; font-weight: 900; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .grade-predict-grade { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: white; }
+    .grade-predict-pts { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+    .grade-predict-msg { font-size: 0.82rem; color: rgba(255,255,255,0.65); line-height: 1.55; font-style: italic; }
+
+    /* Worked solution */
+    .worked-card { background: white; border: 2px solid var(--gold); border-radius: 14px; padding: 16px 18px; }
+    .worked-label { font-size: 0.66rem; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .worked-intro { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; font-style: italic; }
+    .worked-text { font-family: 'Nunito', sans-serif; font-size: 0.92rem; line-height: 1.9; color: var(--ink); white-space: pre-wrap; }
+    .worked-note { display: inline-block; background: #fff8e1; border: 1px solid #f39c12; border-radius: 4px; padding: 1px 7px; font-size: 0.7rem; color: #7f4f00; font-weight: 700; font-style: normal; margin-left: 4px; vertical-align: middle; }
+
+    /* Prescription */
+    .prescription { background: var(--un-light); border: 2px solid var(--blue); border-radius: 12px; padding: 14px 16px; }
+    .presc-label { font-size: 0.66rem; font-weight: 900; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .presc-text { font-size: 0.88rem; color: var(--ink); line-height: 1.55; margin-bottom: 10px; }
+    .turbo-link { display: inline-block; background: var(--blue); color: white; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 0.86rem; padding: 9px 20px; border-radius: 9px; text-decoration: none; }
+
+    /* Actions */
+    .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-btn { flex: 1; min-width: 130px; padding: 12px; background: white; border: 2px solid var(--blue); color: var(--blue); font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 0.86rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .action-btn:hover, .action-btn.primary { background: var(--blue); color: white; }
+
+    /* Nudge */
+    .nudge { background: #fff8e1; border: 2px solid #d97706; border-radius: 12px; padding: 11px 15px; font-size: 0.86rem; color: #7f4f00; }
+
+    /* Typing */
+    .typing-ind { display: flex; align-items: center; gap: 5px; padding: 10px 14px; background: white; border: 1px solid var(--border); border-radius: 14px; border-top-left-radius: 4px; width: fit-content; }
+    .t-dot { width: 7px; height: 7px; background: var(--muted); border-radius: 50%; animation: tBounce 1.2s ease infinite; }
+    .t-dot:nth-child(2){ animation-delay:0.2s; }
+    .t-dot:nth-child(3){ animation-delay:0.4s; }
+    @keyframes tBounce { 0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);} }
+
+    /* Progress */
+    #screen-graph { background: var(--paper); max-width: 680px; margin: 0 auto; width: 100%; }
+    .graph-header { background: #0f172a; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .graph-header h2 { font-family: 'DM Serif Display', serif; color: white; font-size: 1rem; flex: 1; }
+    .graph-body { flex: 1; padding: 18px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+    .graph-box { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .graph-box-title { font-size: 0.7rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+    .attempt-row { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .att-num { font-size: 0.7rem; font-weight: 900; color: var(--muted); width: 24px; flex-shrink: 0; }
+    .att-type { font-size: 0.8rem; flex: 1; }
+    .att-total { font-size: 1.1rem; font-weight: 900; color: var(--blue); }
+
+    /* Overlay */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 999; padding: 20px; align-items: flex-end; justify-content: center; }
+    .overlay.open { display: flex; }
+    .overlay-box { background: white; border-radius: 18px; padding: 22px 20px; max-width: 440px; width: 100%; max-height: 85vh; overflow-y: auto; }
+    .overlay-box h3 { font-family: 'DM Serif Display', serif; font-size: 1.05rem; margin-bottom: 16px; }
+    .crit { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .crit:last-of-type { border-bottom: none; }
+    .crit-name { font-weight: 900; color: var(--blue); font-size: 0.86rem; margin-bottom: 4px; }
+    .crit-desc { font-size: 0.83rem; line-height: 1.55; }
+    .close-btn { width: 100%; margin-top: 16px; padding: 12px; background: var(--ink); color: white; border: none; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 900; cursor: pointer; }
+
+    footer { text-align: center; font-size: 0.66rem; color: rgba(255,255,255,0.15); padding: 10px; flex-shrink: 0; }
+    footer.light { color: var(--muted); }
+
+    @media (max-width: 480px) {
+      .welcome-title { font-size: 2rem; }
+      .coach-body { padding: 14px 12px; }
+      .q-card { padding: 13px 14px; }
+      .un-bub { font-size: 0.86rem; }
+      .write-ta { min-height: 150px; }
+      .submit-btn { width: 100%; padding: 14px; }
+      .write-footer { margin-top: 8px; padding-top: 8px; }
+      .action-row { flex-direction: column; }
+      .action-btn { min-width: unset; width: 100%; padding: 14px; }
+      .turbo-link { width: 100%; text-align: center; display: block; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+const WORKER_URL = 'https://late-disk-b8b2.seansynge.workers.dev';
+</script>
+
+<!-- Marking overlay -->
+<div class="overlay" id="criteria-overlay" onclick="closeCriteria()">
+  <div class="overlay-box" onclick="event.stopPropagation()">
+    <h3>How OL Maths is marked</h3>
+    <div class="crit">
+      <div class="crit-name">Method marks</div>
+      <div class="crit-desc">Using the right approach — even if the final answer is wrong. Writing down the correct formula gets you method marks. These are the most important marks to chase.</div>
+    </div>
+    <div class="crit">
+      <div class="crit-name">Substitution marks</div>
+      <div class="crit-desc">Correctly putting the right values into the formula. Even if you get the arithmetic wrong afterward, substitution marks are awarded.</div>
+    </div>
+    <div class="crit">
+      <div class="crit-name">Answer marks</div>
+      <div class="crit-desc">Getting the correct final answer. These are worth less than method marks — never leave an answer blank just because you're unsure.</div>
+    </div>
+    <div class="crit">
+      <div class="crit-name">The golden rule</div>
+      <div class="crit-desc">Always show your working. A correct answer with no working can get zero. Working with a wrong answer can get most of the marks. Write every step.</div>
+    </div>
+    <button class="close-btn" onclick="closeCriteria()">Got it</button>
+  </div>
+</div>
+
+<!-- SCREEN 1: WELCOME -->
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-inner">
+    <svg class="un-figure" viewBox="0 0 200 270" width="110" height="148" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body — blue work shirt -->
+      <rect x="42" y="155" width="116" height="100" rx="20" fill="#1e3a5f"/>
+      <!-- Shirt lighter blue -->
+      <rect x="70" y="158" width="60" height="94" rx="6" fill="#dbeafe"/>
+      <!-- Tie/collar detail -->
+      <rect x="88" y="158" width="24" height="55" rx="4" fill="#93c5fd"/>
+      <!-- Calculator / notebook in hand -->
+      <rect x="148" y="172" width="32" height="42" rx="4" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+      <rect x="152" y="177" width="24" height="14" rx="2" fill="#60a5fa"/>
+      <line x1="152" y1="196" x2="176" y2="196" stroke="#94a3b8" stroke-width="1"/>
+      <line x1="152" y1="201" x2="176" y2="201" stroke="#94a3b8" stroke-width="1"/>
+      <line x1="152" y1="206" x2="170" y2="206" stroke="#94a3b8" stroke-width="1"/>
+      <!-- Arms -->
+      <ellipse cx="28" cy="195" rx="18" ry="50" fill="#1e3a5f"/>
+      <ellipse cx="172" cy="192" rx="18" ry="46" fill="#1e3a5f"/>
+      <ellipse cx="28" cy="238" rx="14" ry="13" fill="#c8a078"/>
+      <ellipse cx="172" cy="232" rx="14" ry="12" fill="#c8a078"/>
+      <!-- Neck -->
+      <rect x="84" y="128" width="32" height="32" rx="8" fill="#c8a078"/>
+      <!-- Head -->
+      <ellipse cx="100" cy="97" rx="54" ry="58" fill="#c8a078"/>
+      <!-- Silver-grey hair -->
+      <ellipse cx="100" cy="46" rx="46" ry="22" fill="#94a3b8"/>
+      <path d="M46 65 Q42 85 44 108" fill="none" stroke="#78909c" stroke-width="10" stroke-linecap="round"/>
+      <path d="M154 65 Q158 85 156 108" fill="none" stroke="#78909c" stroke-width="10" stroke-linecap="round"/>
+      <!-- Reading glasses — half-moon -->
+      <path d="M74 108 Q85 102 96 108" fill="rgba(200,230,255,0.3)" stroke="#555" stroke-width="2"/>
+      <path d="M104 108 Q115 102 126 108" fill="rgba(200,230,255,0.3)" stroke="#555" stroke-width="2"/>
+      <line x1="71" y1="107" x2="62" y2="105" stroke="#555" stroke-width="1.8"/>
+      <line x1="129" y1="107" x2="138" y2="105" stroke="#555" stroke-width="1.8"/>
+      <line x1="96" y1="108" x2="104" y2="108" stroke="#555" stroke-width="1.8"/>
+      <!-- Eyes — calm, patient -->
+      <ellipse cx="85" cy="102" rx="5" ry="5.5" fill="#2c3e50"/>
+      <ellipse cx="115" cy="102" rx="5" ry="5.5" fill="#2c3e50"/>
+      <ellipse cx="85" cy="102" rx="3" ry="3.5" fill="#1a0a00"/>
+      <ellipse cx="115" cy="102" rx="3" ry="3.5" fill="#1a0a00"/>
+      <ellipse cx="86" cy="100" rx="1.5" ry="1.5" fill="white"/>
+      <ellipse cx="116" cy="100" rx="1.5" ry="1.5" fill="white"/>
+      <!-- Eyebrows — calm, steady -->
+      <path d="M76 88 Q85 85 94 88" fill="none" stroke="#5a4a3a" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M106 88 Q115 85 124 88" fill="none" stroke="#5a4a3a" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Nose -->
+      <ellipse cx="100" cy="114" rx="7" ry="5.5" fill="#b08868"/>
+      <!-- Patient smile -->
+      <path d="M87 130 Q100 138 113 130" fill="none" stroke="#8a5a3a" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- Ears -->
+      <ellipse cx="46" cy="101" rx="8" ry="12" fill="#b08868"/>
+      <ellipse cx="154" cy="101" rx="8" ry="12" fill="#b08868"/>
+      <!-- Wrinkle lines -->
+      <path d="M74 88 Q70 80 74 72" fill="none" stroke="#a07858" stroke-width="1" opacity="0.5"/>
+      <path d="M126 88 Q130 80 126 72" fill="none" stroke="#a07858" stroke-width="1" opacity="0.5"/>
+    </svg>
+
+    <h1 class="welcome-title">The Uncle</h1>
+    <p class="welcome-sub">LC Maths OL · Exam Practice</p>
+
+    <div class="welcome-card">
+      <label class="field-label" for="inp-name">Your name</label>
+      <input class="field-input" id="inp-name" type="text" placeholder="First name" autocomplete="given-name"/>
+    </div>
+
+    <button class="enter-btn" type="button" onclick="enterUncle()">Come here to me →</button>
+    <p class="turbo-note" id="turbo-note">Do some Turbo first — formulas and definitions. It helps.</p>
+  </div>
+</div>
+
+<!-- SCREEN 2: REVEAL -->
+<div id="screen-reveal" class="screen">
+  <div class="reveal-inner">
+    <span class="reveal-icon">👨‍🔧</span>
+    <div class="reveal-text" id="reveal-text"></div>
+    <div class="reveal-sub" id="reveal-sub"></div>
+    <button class="reveal-btn" type="button" onclick="goToCoach()">Right so. Let's go →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3: COACH -->
+<div id="screen-coach" class="screen">
+  <div class="coach-header">
+    <div class="ch-av">👨‍🔧</div>
+    <div class="ch-info">
+      <div class="ch-name">The Uncle</div>
+      <div class="ch-sub">LC Maths OL</div>
+    </div>
+    <div class="ch-actions">
+      <button class="hdr-btn" type="button" onclick="openCriteria()">Marking</button>
+      <button class="hdr-btn" type="button" onclick="showScreen('screen-graph')">Progress</button>
+    </div>
+  </div>
+
+  <div class="topic-bar">
+    <div class="topic-pip active" onclick="setTopic('algebra',this)">𝑥 Algebra</div>
+    <div class="topic-pip" onclick="setTopic('geometry',this)">📐 Geometry</div>
+    <div class="topic-pip" onclick="setTopic('statistics',this)">📊 Stats</div>
+    <div class="topic-pip" onclick="setTopic('functions',this)">📈 Functions</div>
+    <div class="topic-pip" onclick="setTopic('financial',this)">💶 Financial</div>
+    <div class="topic-pip" onclick="setTopic('coordinate',this)">📍 Coord</div>
+    <div class="topic-pip" onclick="setTopic('number',this)">🔢 Number</div>
+  </div>
+
+  <div class="coach-body" id="coach-body"></div>
+  <footer>© 2026 · LC Maths OL · The Uncle</footer>
+</div>
+
+<!-- SCREEN 4: PROGRESS -->
+<div id="screen-graph" class="screen">
+  <div class="graph-header">
+    <h2>Your Progress</h2>
+    <button class="hdr-btn" type="button" onclick="showScreen('screen-coach')">← Back</button>
+  </div>
+  <div class="graph-body">
+    <div class="graph-box">
+      <div class="graph-box-title">Score over time</div>
+      <canvas id="progress-chart" style="width:100%;display:block;"></canvas>
+    </div>
+    <div class="graph-box">
+      <div class="graph-box-title">Stats</div>
+      <div id="stats-bar" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div class="graph-box">
+      <div class="graph-box-title">All attempts</div>
+      <div id="attempt-list"></div>
+    </div>
+  </div>
+  <footer class="light">© 2026 · LC Maths OL · The Uncle</footer>
+</div>
+
+<script>
+// ============================================================
+// QUESTION BANK — OL Maths
+// ============================================================
+const QUESTIONS = {
+
+algebra: [
+  {
+    stem: "Solve the following equations.",
+    parts: [
+      {label:"(a)", text:"Solve 3x + 4 = 19", marks:5},
+      {label:"(b)", text:"Solve 2x² − 7x + 3 = 0", marks:10},
+      {label:"(c)", text:"Solve simultaneously: 2x + y = 8 and x − y = 1", marks:10},
+    ]
+  },
+  {
+    stem: "Algebra questions.",
+    parts: [
+      {label:"(a)", text:"Factorise fully: x² − 5x + 6", marks:5},
+      {label:"(b)", text:"Factorise: 2x² + 7x + 3", marks:8},
+      {label:"(c)", text:"Solve: x² + 3x − 10 = 0 using any method. Verify your answers.", marks:12},
+    ]
+  },
+  {
+    stem: "Solve and apply.",
+    parts: [
+      {label:"(a)", text:"Expand and simplify: (2x − 3)(x + 5)", marks:5},
+      {label:"(b)", text:"Solve: 5x − 3 = 2x + 9", marks:5},
+      {label:"(c)", text:"A rectangle has length (x + 4) cm and width (x − 1) cm. Its area is 24 cm². Find x.", marks:15},
+    ]
+  },
+  {
+    stem: "Rearrange and solve.",
+    parts: [
+      {label:"(a)", text:"Rearrange v = u + at to make a the subject.", marks:5},
+      {label:"(b)", text:"Solve: (x+1)(x−3) = 5", marks:10},
+      {label:"(c)", text:"Two numbers differ by 4. Their product is 45. Find the numbers.", marks:10},
+    ]
+  },
+],
+
+geometry: [
+  {
+    stem: "In the triangle ABC, angle A = 40°, side b = 9 cm, side c = 7 cm.",
+    parts: [
+      {label:"(a)", text:"Find the area of triangle ABC.", marks:10},
+      {label:"(b)", text:"Find the length of side a.", marks:10},
+      {label:"(c)", text:"Find angle B.", marks:5},
+    ]
+  },
+  {
+    stem: "Trigonometry and Pythagoras.",
+    parts: [
+      {label:"(a)", text:"A right-angled triangle has legs 8 cm and 15 cm. Find the hypotenuse.", marks:5},
+      {label:"(b)", text:"A ladder 6 m long leans against a wall. The foot of the ladder is 2 m from the wall. Find the angle the ladder makes with the ground.", marks:10},
+      {label:"(c)", text:"In triangle PQR, PQ = 10, QR = 8, angle Q = 55°. Find PR.", marks:10},
+    ]
+  },
+  {
+    stem: "Areas and volumes.",
+    parts: [
+      {label:"(a)", text:"Find the area of a circle with radius 7 cm. Give answer in terms of π and also to 2 decimal places.", marks:8},
+      {label:"(b)", text:"A cylinder has radius 4 cm and height 10 cm. Find its volume to 2 decimal places.", marks:8},
+      {label:"(c)", text:"A sector of a circle has radius 9 cm and angle 80°. Find the area of the sector.", marks:9},
+    ]
+  },
+],
+
+statistics: [
+  {
+    stem: "The ages of 8 students are: 15, 16, 15, 17, 16, 16, 18, 14.",
+    parts: [
+      {label:"(a)", text:"Find the mean, median and mode.", marks:12},
+      {label:"(b)", text:"Find the range.", marks:3},
+      {label:"(c)", text:"A 9th student joins and the mean increases by 0.5. What age is the 9th student?", marks:10},
+    ]
+  },
+  {
+    stem: "Probability questions.",
+    parts: [
+      {label:"(a)", text:"A bag contains 5 red, 3 blue and 2 green balls. A ball is picked at random. Find P(red).", marks:5},
+      {label:"(b)", text:"Two dice are rolled. Find P(sum = 7).", marks:10},
+      {label:"(c)", text:"A card is drawn at random from a standard deck of 52. Find P(king or heart).", marks:10},
+    ]
+  },
+  {
+    stem: "A class of 30 students sat a test. Results: 55, 62, 71, 48, 83, 76, 61, 55, 69, 74, 81, 55, 67, 72, 58, 63, 79, 55, 68, 73, 80, 51, 66, 74, 60, 77, 55, 64, 70, 82.",
+    parts: [
+      {label:"(a)", text:"Find the mean score.", marks:8},
+      {label:"(b)", text:"Identify the mode.", marks:4},
+      {label:"(c)", text:"A student is chosen at random. Find the probability they scored above 70.", marks:8},
+      {label:"(d)", text:"Would a student scoring 75 be above or below average? Show your reasoning.", marks:5},
+    ]
+  },
+],
+
+functions: [
+  {
+    stem: "f(x) = 2x² − 3x − 5.",
+    parts: [
+      {label:"(a)", text:"Find f(0), f(1) and f(−1).", marks:9},
+      {label:"(b)", text:"Find the x-intercepts of f(x).", marks:8},
+      {label:"(c)", text:"Find the axis of symmetry and turning point.", marks:8},
+    ]
+  },
+  {
+    stem: "The line k has equation y = 3x − 2.",
+    parts: [
+      {label:"(a)", text:"Find the slope and y-intercept of k.", marks:5},
+      {label:"(b)", text:"Find the x-intercept of k.", marks:5},
+      {label:"(c)", text:"Another line m is parallel to k and passes through (0, 5). Write the equation of m.", marks:5},
+      {label:"(d)", text:"Find where k and the line y = −x + 6 intersect.", marks:10},
+    ]
+  },
+  {
+    stem: "Sketch and analyse the function g(x) = x² − 4x − 5.",
+    parts: [
+      {label:"(a)", text:"Find the y-intercept.", marks:3},
+      {label:"(b)", text:"Find the x-intercepts by factorising.", marks:8},
+      {label:"(c)", text:"Find the axis of symmetry and turning point.", marks:8},
+      {label:"(d)", text:"Sketch the curve, marking all key points.", marks:6},
+    ]
+  },
+],
+
+financial: [
+  {
+    stem: "Financial maths questions.",
+    parts: [
+      {label:"(a)", text:"Find 23% VAT on a product priced at €340 before tax.", marks:5},
+      {label:"(b)", text:"A coat costs €180. It is reduced by 35% in a sale. Find the sale price.", marks:7},
+      {label:"(c)", text:"€4,000 is invested at 4.5% compound interest per year. Find the value after 3 years.", marks:13},
+    ]
+  },
+  {
+    stem: "Income and tax.",
+    parts: [
+      {label:"(a)", text:"A worker earns €38,000 per year. Income tax is charged at 20% on the first €40,000. Tax credits are €3,300. Calculate the income tax payable.", marks:10},
+      {label:"(b)", text:"The same worker pays PRSI of 4% on gross income. Calculate the PRSI.", marks:5},
+      {label:"(c)", text:"Calculate the worker's net monthly take-home pay (income tax and PRSI only).", marks:10},
+    ]
+  },
+  {
+    stem: "Depreciation and growth.",
+    parts: [
+      {label:"(a)", text:"A car is bought for €24,000. It depreciates by 18% per year. Find its value after 3 years.", marks:10},
+      {label:"(b)", text:"A house is valued at €320,000. It grows in value by 6% per year. Find its value after 5 years.", marks:10},
+      {label:"(c)", text:"How many years will it take for an investment to double at 8% compound interest? (Use trial and improvement or show working.)", marks:5},
+    ]
+  },
+],
+
+coordinate: [
+  {
+    stem: "The points A(1, 3) and B(5, 11) are given.",
+    parts: [
+      {label:"(a)", text:"Find the distance |AB|.", marks:7},
+      {label:"(b)", text:"Find the midpoint M of AB.", marks:5},
+      {label:"(c)", text:"Find the slope of AB.", marks:5},
+      {label:"(d)", text:"Find the equation of the line AB.", marks:8},
+    ]
+  },
+  {
+    stem: "The circle C has equation x² + y² − 6x + 4y − 12 = 0.",
+    parts: [
+      {label:"(a)", text:"Write the equation in the form (x − a)² + (y − b)² = r² and find the centre and radius.", marks:12},
+      {label:"(b)", text:"Show whether the point (5, 1) is inside, on, or outside the circle.", marks:8},
+      {label:"(c)", text:"Find the equation of the circle with centre (2, −3) and radius 5.", marks:5},
+    ]
+  },
+  {
+    stem: "Lines and perpendicularity.",
+    parts: [
+      {label:"(a)", text:"The line L has slope 3 and passes through (1, 5). Find the equation of L.", marks:7},
+      {label:"(b)", text:"Find the equation of the line perpendicular to L that passes through (0, 2).", marks:8},
+      {label:"(c)", text:"Find the point of intersection of L and y = −x/3 + 2.", marks:10},
+    ]
+  },
+],
+
+number: [
+  {
+    type: 'venn',
+    stem: "In a class of 30 students, 18 study French, 14 study German and 6 study both.",
+    venn: {
+      labelA: 'French', labelB: 'German',
+      total: 30,
+      nA: 18, nB: 14, nAB: 6,
+      regions: {
+        onlyA: 12,   // French only
+        both: 6,     // Both
+        onlyB: 8,    // German only
+        neither: 4   // Neither
+      },
+      formula: '#(F∪G) = 18 + 14 − 6 = 26; Neither = 30 − 26 = 4',
+      marks: { onlyA:3, both:3, onlyB:3, neither:3, formula:3 }
+    },
+    parts: [
+      {label:"(a)", text:"Fill in the Venn diagram above.", marks:9},
+      {label:"(b)", text:"How many students study neither French nor German?", marks:3},
+      {label:"(c)", text:"Using the formula #(A∪B) = #A + #B − #(A∩B), verify your answer.", marks:8},
+    ]
+  },
+  {
+    type: 'venn',
+    stem: "In a year group of 50 students, 32 play sport, 25 play a musical instrument, and 10 do both.",
+    venn: {
+      labelA: 'Sport', labelB: 'Music',
+      total: 50,
+      nA: 32, nB: 25, nAB: 10,
+      regions: {
+        onlyA: 22,
+        both: 10,
+        onlyB: 15,
+        neither: 3
+      },
+      formula: '#(S∪M) = 32 + 25 − 10 = 47; Neither = 50 − 47 = 3',
+      marks: { onlyA:3, both:3, onlyB:3, neither:3, formula:3 }
+    },
+    parts: [
+      {label:"(a)", text:"Fill in the Venn diagram.", marks:9},
+      {label:"(b)", text:"How many students do neither?", marks:3},
+      {label:"(c)", text:"Show your working using the union formula.", marks:8},
+    ]
+  },
+  {
+    type: 'venn',
+    stem: "In a survey of 40 people, 24 own a car, 18 own a bicycle, and 8 own both.",
+    venn: {
+      labelA: 'Car', labelB: 'Bicycle',
+      total: 40,
+      nA: 24, nB: 18, nAB: 8,
+      regions: {
+        onlyA: 16,
+        both: 8,
+        onlyB: 10,
+        neither: 6
+      },
+      formula: '#(C∪B) = 24 + 18 − 8 = 34; Neither = 40 − 34 = 6',
+      marks: { onlyA:3, both:3, onlyB:3, neither:3, formula:3 }
+    },
+    parts: [
+      {label:"(a)", text:"Draw and fill in the Venn diagram.", marks:9},
+      {label:"(b)", text:"How many people own neither?", marks:3},
+      {label:"(c)", text:"Verify using #(A∪B) = #A + #B − #(A∩B).", marks:8},
+    ]
+  },
+  {
+    stem: "Number questions.",
+    parts: [
+      {label:"(a)", text:"Express 252 as a product of its prime factors.", marks:7},
+      {label:"(b)", text:"Find the HCF and LCM of 36 and 48.", marks:8},
+      {label:"(c)", text:"Write 0.00045 in scientific notation.", marks:5},
+      {label:"(d)", text:"Simplify √75 + √48.", marks:5},
+    ]
+  },
+],
+
+}; // end QUESTIONS
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  name: '', turboData: null, totalStars: 0,
+  currentTopic: 'algebra', currentQuestion: null,
+  attempts: [], firstVisit: true, usedQuestions: {},
+  nudgeT1: null, nudgeT2: null,
+};
+
+const STAR_GATE = 5;
+const TOPIC_KEYS = ['algebra','geometry','statistics','functions','financial','coordinate','number'];
+
+window.addEventListener('DOMContentLoaded', function() {
+  var saved = localStorage.getItem('lcm_attempts');
+  if (saved) state.attempts = JSON.parse(saved);
+  if (localStorage.getItem('lcm_first_visit') === 'no') state.firstVisit = false;
+  var uq = localStorage.getItem('lcm_used_questions');
+  if (uq) state.usedQuestions = JSON.parse(uq);
+  state.turboData = JSON.parse(localStorage.getItem('lcm_turbo_data') || 'null');
+  state.totalStars = countStars();
+
+  var note = document.getElementById('turbo-note');
+  if (state.totalStars >= STAR_GATE) {
+    note.textContent = '⭐ ' + state.totalStars + ' Turbo star' + (state.totalStars !== 1 ? 's' : '') + ' — he\'ll see what you\'ve been practising.';
+  } else {
+    note.textContent = '⚠️ You need ' + STAR_GATE + ' Turbo stars first. You have ' + state.totalStars + '. Go do the work.';
+    note.style.color = '#d97706'; note.style.fontStyle = 'normal';
+  }
+
+  var n = localStorage.getItem('lcm_uncle_name');
+  if (n) document.getElementById('inp-name').value = n;
+});
+
+function countStars() {
+  var t = 0;
+  TOPIC_KEYS.forEach(function(c) {
+    for (var l = 1; l <= 8; l++) {
+      var s = localStorage.getItem('lcm_turbo_best_' + c + '_' + l);
+      if (s) t += parseInt(s) || 0;
+    }
+  });
+  return t;
+}
+
+function enterUncle() {
+  var name = document.getElementById('inp-name').value.trim();
+  if (!name) { document.getElementById('inp-name').focus(); return; }
+
+  var liveStars = countStars();
+  state.totalStars = liveStars;
+
+  if (liveStars < STAR_GATE) {
+    var note = document.getElementById('turbo-note');
+    note.textContent = '⚠️ ' + STAR_GATE + ' stars needed. You have ' + liveStars + '. Go to Turbo first.';
+    note.style.color = '#d97706'; note.style.fontStyle = 'normal'; note.style.fontWeight = 'bold';
+    return;
+  }
+
+  state.name = name;
+  localStorage.setItem('lcm_uncle_name', name);
+  showReveal();
+}
+
+function showReveal() {
+  var name = state.name;
+  var attempts = state.attempts.length;
+  var main, sub;
+
+  if (attempts === 0) {
+    main = 'Right so, ' + name + '. Come here to me.';
+    sub = 'OL Maths. First time. Good.\n\nHere\'s the thing about Maths — the marks go to working, not just answers. Write every step. If you use the right formula and make an arithmetic error, you still get most of the marks.\n\nShow me what you have. That\'s all I need.';
+  } else {
+    var best = Math.max.apply(null, state.attempts.map(function(a) { return a.total; }));
+    main = 'Grand to see you, ' + name + '.';
+    sub = attempts + ' attempt' + (attempts !== 1 ? 's' : '') + ' done. Best score: ' + best + '.\nLet\'s keep that moving.';
+  }
+
+  if (state.totalStars > 0) sub += '\n\n' + state.totalStars + ' Turbo star' + (state.totalStars !== 1 ? 's' : '') + '. I can see what you\'ve been working on.';
+
+  document.getElementById('reveal-text').textContent = main;
+  document.getElementById('reveal-sub').textContent = sub;
+  showScreen('screen-reveal');
+}
+
+function goToCoach() {
+  showScreen('screen-coach');
+  document.getElementById('coach-body').innerHTML = '';
+  openingMessage();
+}
+
+function openingMessage() {
+  var name = state.name;
+  if (state.firstVisit) {
+    addUnMsg('Right, ' + name + '. Pick your topic above. I\'ll give you a real OL question — same style as the paper.\n\nOne thing to keep in mind: always write your working. Even if you\'re not sure of the answer, show the formula, show your substitution. That\'s where the marks are.\n\nLet\'s start.');
+    localStorage.setItem('lcm_first_visit', 'no');
+    state.firstVisit = false;
+  } else {
+    addUnMsg(name + '. ' + (state.attempts.length > 0 ? state.attempts.length + ' down. Let\'s do another.' : 'Pick your topic. Off we go.'));
+  }
+  setTimeout(function() { giveQuestion(state.currentTopic); }, 400);
+}
+
+function setTopic(topic, btn) {
+  state.currentTopic = topic;
+  document.querySelectorAll('.topic-pip').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  var body = document.getElementById('coach-body');
+  body.innerHTML = '';
+  clearTimeout(state.nudgeT1); clearTimeout(state.nudgeT2);
+  addUnMsg('Grand. ' + topicLabel(topic) + '.');
+  setTimeout(function() { giveQuestion(topic); }, 300);
+}
+
+function topicLabel(t) {
+  return {algebra:'Algebra',geometry:'Geometry & Trig',statistics:'Statistics & Probability',functions:'Functions & Graphs',financial:'Financial Maths',coordinate:'Coordinate Geometry',number:'Number & Sets'}[t] || t;
+}
+
+function getNextQuestion(topic) {
+  var pool = QUESTIONS[topic] || [];
+  var key = 'lcm_' + topic;
+  if (!state.usedQuestions[key]) state.usedQuestions[key] = [];
+  var used = state.usedQuestions[key];
+  if (used.length >= pool.length) { state.usedQuestions[key] = []; used = []; }
+  var available = pool.map(function(_,i){return i;}).filter(function(i){return !used.includes(i);});
+  var idx = available[Math.floor(Math.random() * available.length)];
+  used.push(idx);
+  localStorage.setItem('lcm_used_questions', JSON.stringify(state.usedQuestions));
+  return pool[idx];
+}
+
+function giveQuestion(topic) {
+  var q = getNextQuestion(topic);
+  if (!q) { addUnMsg('No questions for that topic yet. Pick another.'); return; }
+  state.currentQuestion = { topic: topic, q: q };
+
+  var body = document.getElementById('coach-body');
+  var totalMarks = q.parts.reduce(function(s,p){return s+(parseInt(p.marks)||5);},0);
+
+  var card = document.createElement('div');
+  card.className = 'q-card';
+  var partsHtml = '<ul class="q-parts">';
+  q.parts.forEach(function(p) {
+    partsHtml += '<li data-label="' + (p.label||'→') + '">' + escHtml(p.text) + ' <span style="font-size:0.72rem;color:var(--muted)">(' + p.marks + 'm)</span></li>';
+  });
+  partsHtml += '</ul>';
+
+  card.innerHTML =
+    '<div class="q-card-label">📐 ' + topicLabel(topic) + ' <span class="marks-chip">' + totalMarks + ' marks</span></div>' +
+    '<div class="q-card-topic">OL · Show all working</div>' +
+    '<div class="q-card-stem">' + escHtml(q.stem) + '</div>' +
+    partsHtml;
+  body.appendChild(card);
+
+  // Venn diagram or standard text zone
+  if (q.type === 'venn') {
+    buildVennUI(q, body);
+  } else {
+    var zone = document.createElement('div');
+    zone.className = 'write-zone'; zone.id = 'write-zone';
+    zone.innerHTML =
+      '<div class="write-label"><span>Your working</span><span id="wc">0 words</span></div>' +
+      '<div class="write-hint">Write every step — formula, substitution, calculation. The marks are in the working.</div>' +
+      '<div class="sym-bar">' + symBarHTML() + '</div>' +
+      '<textarea class="write-ta" id="write-ta" placeholder="Show all your working here, step by step..." oninput="updateWC()" onfocus="window._lastTA=this"></textarea>' +
+      '<div class="write-footer"><button class="submit-btn" type="button" id="sub-btn" onclick="submitAnswer()">Submit for marking →</button></div>';
+    body.appendChild(zone);
+  }
+  scrollBottom();
+
+  clearTimeout(state.nudgeT1); clearTimeout(state.nudgeT2);
+  state.nudgeT1 = setTimeout(function() {
+    if (document.getElementById('write-zone'))
+      addNudge('Still going? Grand. Remember — even if you\'re stuck, write down the formula. That\'s marks.');
+  }, 5*60*1000);
+  state.nudgeT2 = setTimeout(function() {
+    if (document.getElementById('write-zone'))
+      addNudge('Come on now, ' + state.name + '. Submit what you have. Working is marks — even a partial attempt.');
+  }, 10*60*1000);
+}
+
+function updateWC() {
+  var t = document.getElementById('write-ta').value.trim();
+  var w = t ? t.split(/\s+/).length : 0;
+  document.getElementById('wc').textContent = w + ' word' + (w !== 1 ? 's' : '');
+}
+
+async function submitAnswer() {
+  // Handle venn questions differently
+  if (state.currentQuestion && state.currentQuestion.q.type === 'venn') {
+    await submitVenn();
+    return;
+  }
+
+  var text = document.getElementById('write-ta').value.trim();
+  if (!text || text.split(/\s+/).length < 3) { addNudge('Write something — even the formula. Give me something to mark.'); return; }
+
+  clearTimeout(state.nudgeT1); clearTimeout(state.nudgeT2);
+  document.getElementById('write-ta').disabled = true;
+  document.getElementById('sub-btn').disabled = true;
+
+  var typing = addTyping();
+
+  try {
+    var q = state.currentQuestion.q;
+    var topic = state.currentTopic;
+    var totalMarks = q.parts.reduce(function(s,p){return s+(parseInt(p.marks)||5);},0);
+    var turboSummary = buildTurboSummary();
+    var attemptNum = state.attempts.length + 1;
+    var prevTotal = state.attempts.length > 0 ? state.attempts[state.attempts.length-1].total : null;
+
+    var res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        mode: 'maths_mark',
+        name: state.name,
+        topic: topic,
+        question_stem: q.stem,
+        parts: q.parts,
+        working: text,
+        turbo_summary: turboSummary,
+        attempt_number: attemptNum,
+        previous_total: prevTotal,
+        all_attempts: state.attempts.slice(-10),
+      })
+    });
+
+    var data = await res.json();
+    removeTyping(typing);
+    if (data.mark) showMark(data.mark, topic, q);
+    else addUnMsg('Something went wrong. Try again.');
+  } catch(e) {
+    removeTyping(typing);
+    addUnMsg('Lost the connection. Check your signal and try again.');
+  }
+}
+
+function showMark(mark, topic, q) {
+  var body = document.getElementById('coach-body');
+  var totalMarks = q.parts.reduce(function(s,p){return s+(parseInt(p.marks)||5);},0);
+  var pct = Math.round((mark.total/totalMarks)*100);
+
+  state.attempts.push({
+    topic: topic, topicLabel: topicLabel(topic),
+    total: mark.total, maxTotal: totalMarks,
+    date: new Date().toLocaleDateString('en-IE'),
+  });
+  localStorage.setItem('lcm_attempts', JSON.stringify(state.attempts.slice(-20)));
+
+  var totalColor = pct >= 80 ? '#15803d' : pct >= 60 ? '#d97706' : '#1e3a5f';
+
+  var card = document.createElement('div');
+  card.className = 'mark-card';
+  var html = '<div class="mark-label">Your marks — ' + escHtml(topicLabel(topic)) + ' · OL</div>';
+
+  if (mark.part_scores && q.parts.length > 1) {
+    html += '<div class="mark-parts">';
+    mark.part_scores.forEach(function(ps, i) {
+      var part = q.parts[i] || {};
+      var maxM = part.marks || 10;
+      var col = ps >= maxM*0.8 ? '#15803d' : ps >= maxM*0.5 ? '#d97706' : '#dc2626';
+      html += '<div class="mark-part-row">' +
+        '<div class="mark-part-label">' + (part.label||'') + '</div>' +
+        '<div class="mark-part-text">' + escHtml((part.text||'').substring(0,60)) + '...</div>' +
+        '<div class="mark-part-score" style="color:' + col + '">' + ps + '/' + maxM + '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="mark-total" style="background:' + totalColor + '">' +
+    '<div class="mark-total-num">' + mark.total + '<span style="font-size:1rem;opacity:0.7">/' + totalMarks + '</span></div>' +
+    '<div class="mark-total-sub">' + gradeDesc(pct) + '</div></div>';
+  html += '<div class="mark-feedback">' + formatFeedback(mark.feedback) + '</div>';
+  card.innerHTML = html;
+  body.appendChild(card);
+
+  // Grade prediction
+  if (mark.grade_prediction && mark.grade_prediction.grade) {
+    var gp = mark.grade_prediction;
+    var pred = document.createElement('div');
+    pred.className = 'grade-predict';
+    pred.innerHTML =
+      '<div class="grade-predict-label">📊 Where you\'re tracking</div>' +
+      '<div class="grade-predict-grade">' + escHtml(gp.grade||'') + '</div>' +
+      '<div class="grade-predict-pts">' + (gp.cao_points ? gp.cao_points + ' CAO points' : '') + '</div>' +
+      (gp.message ? '<div class="grade-predict-msg">' + escHtml(gp.message) + '</div>' : '');
+    body.appendChild(pred);
+  }
+
+  // Worked solution — always shown
+  if (mark.worked_solution) {
+    var ws = document.createElement('div');
+    ws.className = 'worked-card';
+    ws.innerHTML =
+      '<div class="worked-label">✏️ Full worked solution</div>' +
+      '<div class="worked-intro">Every step — this is what full marks looks like.</div>' +
+      '<div class="worked-text">' + formatWorked(mark.worked_solution) + '</div>';
+    body.appendChild(ws);
+  }
+
+  // Prescription
+  if (mark.prescription) {
+    var presc = document.createElement('div');
+    presc.className = 'prescription';
+    presc.innerHTML =
+      '<div class="presc-label">🎯 What to do next</div>' +
+      '<div class="presc-text">' + escHtml(mark.prescription) + '</div>' +
+      (mark.turbo_needed ? '<a class="turbo-link" href="lc-maths-turbo.html">Back to Turbo →</a>' : '');
+    body.appendChild(presc);
+  }
+
+  var actions = document.createElement('div');
+  actions.className = 'action-row';
+  actions.innerHTML =
+    '<button class="action-btn primary" type="button" onclick="nextQuestion()">Try another →</button>' +
+    '<button class="action-btn" type="button" onclick="showScreen(\'screen-graph\')">📈 Progress</button>';
+  body.appendChild(actions);
+  scrollBottom();
+}
+
+function gradeDesc(pct) {
+  if (pct >= 90) return pct + '% — H1 (56 CAO pts) 🌟';
+  if (pct >= 80) return pct + '% — H2 (46 CAO pts)';
+  if (pct >= 70) return pct + '% — H3 (37 CAO pts)';
+  if (pct >= 60) return pct + '% — H4 (28 CAO pts)';
+  if (pct >= 50) return pct + '% — H5 (20 CAO pts)';
+  if (pct >= 40) return pct + '% — H6 (12 CAO pts)';
+  return pct + '% — keep going';
+}
+
+function nextQuestion() {
+  document.getElementById('coach-body').innerHTML = '';
+  addUnMsg(state.name + '. Good. Next one.');
+  setTimeout(function() { giveQuestion(state.currentTopic); }, 400);
+}
+
+function renderGraph() {
+  var attempts = state.attempts;
+  var list = document.getElementById('attempt-list');
+  list.innerHTML = '';
+
+  if (!attempts.length) {
+    list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px;font-size:0.88rem">No attempts yet.</p>';
+    document.getElementById('stats-bar').innerHTML = '';
+    return;
+  }
+
+  var totals = attempts.map(function(a){return a.total;});
+  var best = Math.max.apply(null,totals);
+  var avg = Math.round(totals.reduce(function(s,v){return s+v;},0)/totals.length);
+
+  var chip = function(label,val,color) {
+    return '<div style="flex:1;min-width:80px;background:white;border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;">' +
+      '<div style="font-size:1.3rem;font-weight:900;color:'+color+'">'+val+'</div>' +
+      '<div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;margin-top:2px">'+label+'</div></div>';
+  };
+  document.getElementById('stats-bar').innerHTML =
+    chip('Attempts',attempts.length,'var(--blue)') +
+    chip('Best',best,'var(--green)') +
+    chip('Average',avg,'var(--gold)');
+
+  var canvas = document.getElementById('progress-chart');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio||1;
+  var w = (canvas.parentElement.clientWidth-32)||300, h = 200;
+  canvas.width=w*dpr; canvas.height=h*dpr; canvas.style.width=w+'px'; canvas.style.height=h+'px';
+  ctx.scale(dpr,dpr);
+  var pad={t:16,r:16,b:28,l:32};
+  var cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  var n=attempts.length;
+  var maxScore=Math.max.apply(null,attempts.map(function(a){return a.maxTotal||50;}));
+  ctx.clearRect(0,0,w,h);
+  [0,25,50,75,100].forEach(function(v){
+    var y=pad.t+ch-(v/100)*ch;
+    ctx.strokeStyle='#eee';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
+    ctx.fillStyle='#bbb';ctx.font='9px Nunito,sans-serif';ctx.textAlign='right';
+    ctx.fillText(v+'%',pad.l-4,y+3);
+  });
+  var xPos=function(i){return pad.l+(n===1?cw/2:(i/(n-1))*cw);};
+  var yPos=function(a){return pad.t+ch-(Math.round((a.total/(a.maxTotal||maxScore))*100)/100)*ch;};
+  attempts.forEach(function(a,i){
+    var y=yPos(a);
+    if(i>0){ctx.strokeStyle='#1d4ed8';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(xPos(i-1),yPos(attempts[i-1]));ctx.lineTo(xPos(i),y);ctx.stroke();}
+    ctx.fillStyle='#1d4ed8';ctx.beginPath();ctx.arc(xPos(i),y,5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='white';ctx.beginPath();ctx.arc(xPos(i),y,2.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1d4ed8';ctx.font='bold 10px Nunito,sans-serif';ctx.textAlign='center';
+    ctx.fillText(a.total,xPos(i),y-9);
+    ctx.fillStyle='#bbb';ctx.font='9px Nunito,sans-serif';ctx.fillText('#'+(i+1),xPos(i),h-6);
+  });
+
+  [...attempts].reverse().forEach(function(a,i){
+    var num=attempts.length-i;
+    var row=document.createElement('div');
+    row.className='attempt-row';
+    row.innerHTML='<div class="att-num">#'+num+'</div>' +
+      '<div class="att-type"><div style="font-weight:700;font-size:0.8rem">'+escHtml(a.topicLabel)+'</div>' +
+      '<div style="font-size:0.7rem;color:var(--muted)">'+a.date+'</div></div>' +
+      '<div class="att-total">'+a.total+'<span style="font-size:0.68rem;color:var(--muted)">/'+a.maxTotal+'</span></div>';
+    list.appendChild(row);
+  });
+}
+
+
+// ============================================================
+// SYMBOL TOOLBAR
+// ============================================================
+function symBarHTML() {
+  var syms = [
+    {s:'π',l:'π'},{s:'²',l:'x²'},{s:'³',l:'x³'},{s:'√',l:'√'},
+    {s:'±',l:'±'},{s:'×',l:'×'},{s:'÷',l:'÷'},
+    {s:'≤',l:'≤'},{s:'≥',l:'≥'},{s:'≠',l:'≠'},
+    {s:'∪',l:'∪'},{s:'∩',l:'∩'},{s:'∅',l:'∅'},{s:'∈',l:'∈'},
+    {s:'⊆',l:'⊆'},{s:'∞',l:'∞'},{s:'°',l:'°'},
+    {s:'½',l:'½'},{s:'¼',l:'¼'},{s:'¾',l:'¾'},
+  ];
+  return syms.map(function(s){
+    return '<button class="sym-btn" type="button" onclick="insertSym(\''+s.s+'\')">'+s.l+'</button>';
+  }).join('');
+}
+
+function insertSym(sym) {
+  var target = window._lastTA;
+  if (!target) {
+    target = document.getElementById('write-ta');
+  }
+  if (!target || target.disabled) return;
+  var start = target.selectionStart || target.value.length;
+  var end = target.selectionEnd || target.value.length;
+  target.value = target.value.slice(0, start) + sym + target.value.slice(end);
+  target.selectionStart = target.selectionEnd = start + sym.length;
+  target.focus();
+  // trigger word count update
+  var ev = document.createEvent('Event');
+  ev.initEvent('input', true, true);
+  target.dispatchEvent(ev);
+}
+
+// ============================================================
+// VENN DIAGRAM ENGINE
+// ============================================================
+function buildVennUI(q, body) {
+  var v = q.venn;
+  var wrap = document.createElement('div');
+  wrap.className = 'venn-wrap';
+  wrap.id = 'venn-wrap';
+
+  // SVG Venn — two overlapping circles inside a rectangle (U)
+  // ViewBox: 0 0 340 200
+  // Circle A: cx=120 cy=100 r=80
+  // Circle B: cx=220 cy=100 r=80
+  // Only-A centre ~ (75,100), Both ~ (170,100), Only-B ~ (265,100), Neither ~ (30,30)
+  wrap.innerHTML =
+    '<div class="venn-label-top">🔵 Fill in the Venn Diagram</div>' +
+    '<div class="venn-svg-wrap" id="venn-svg-wrap">' +
+      '<svg class="venn-svg" viewBox="0 0 340 210" xmlns="http://www.w3.org/2000/svg">' +
+        // U rectangle
+        '<rect x="5" y="5" width="330" height="200" rx="12" fill="none" stroke="#94a3b8" stroke-width="2"/>' +
+        '<text x="318" y="22" font-size="13" fill="#94a3b8" text-anchor="end" font-family="Nunito,sans-serif" font-weight="700">U</text>' +
+        // Circle A
+        '<circle cx="130" cy="105" r="82" fill="rgba(29,78,216,0.08)" stroke="#1d4ed8" stroke-width="2.5"/>' +
+        // Circle B
+        '<circle cx="210" cy="105" r="82" fill="rgba(217,119,6,0.08)" stroke="#d97706" stroke-width="2.5"/>' +
+        // Labels
+        '<text x="80" y="38" font-size="13" fill="#1d4ed8" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800">' + escHtml(v.labelA) + '</text>' +
+        '<text x="260" y="38" font-size="13" fill="#d97706" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800">' + escHtml(v.labelB) + '</text>' +
+        // Input placeholder circles (visual guides)
+        '<circle cx="85" cy="110" r="28" fill="rgba(29,78,216,0.06)" stroke="none"/>' +
+        '<circle cx="170" cy="110" r="28" fill="rgba(100,100,100,0.06)" stroke="none"/>' +
+        '<circle cx="255" cy="110" r="28" fill="rgba(217,119,6,0.06)" stroke="none"/>' +
+        // "Neither" box guide
+        '<rect x="10" y="155" width="44" height="44" rx="6" fill="rgba(100,100,100,0.05)" stroke="none"/>' +
+      '</svg>' +
+      // Floating inputs positioned over SVG using % positions
+      '<div class="venn-input-overlay" id="venn-overlay"></div>' +
+    '</div>' +
+    '<div class="venn-legend">' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#1d4ed8"></span>' + escHtml(v.labelA) + ' only</span>' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#64748b"></span>Both</span>' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#d97706"></span>' + escHtml(v.labelB) + ' only</span>' +
+      '<span class="venn-leg-item"><span class="venn-leg-dot" style="background:#94a3b8"></span>Neither</span>' +
+    '</div>' +
+    '<div class="venn-hint">Tap each box and type the number. Don\'t forget the &quot;neither&quot; box (bottom left).</div>';
+
+  body.appendChild(wrap);
+
+  // Position inputs as % of SVG viewbox (340x210)
+  // onlyA: 85/340=25%, 110/210=52%
+  // both:  170/340=50%, 110/210=52%
+  // onlyB: 255/340=75%, 110/210=52%
+  // neither: 32/340=9.4%, 177/210=84%
+  var positions = [
+    {id:'onlyA',  left:'25%', top:'52%', label:v.labelA+' only'},
+    {id:'both',   left:'50%', top:'52%', label:'Both'},
+    {id:'onlyB',  left:'75%', top:'52%', label:v.labelB+' only'},
+    {id:'neither',left:'9.5%',top:'84%', label:'Neither'},
+  ];
+
+  var overlay = document.getElementById('venn-overlay');
+  positions.forEach(function(pos) {
+    var inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'venn-inp';
+    inp.id = 'venn-' + pos.id;
+    inp.placeholder = '?';
+    inp.min = '0';
+    inp.setAttribute('aria-label', pos.label);
+    inp.style.left = pos.left;
+    inp.style.top = pos.top;
+    overlay.appendChild(inp);
+  });
+
+  // Working text area below
+  var zone = document.createElement('div');
+  zone.className = 'write-zone'; zone.id = 'write-zone';
+  zone.style.marginTop = '12px';
+  zone.innerHTML =
+    '<div class="write-label"><span>Show your working</span><span id="wc">0 words</span></div>' +
+    '<div class="write-hint">Write out the formula: #(A∪B) = #A + #B − #(A∩B). Show every step.</div>' +
+    '<div class="sym-bar">' + symBarHTML() + '</div>' +
+    '<textarea class="write-ta" id="write-ta" placeholder="e.g. #(F∪G) = 18 + 12 − 6 = 24&#10;Neither = 30 − 24 = 6" oninput="updateWC()" onfocus="window._lastTA=this"></textarea>' +
+    '<div class="write-footer"><button class="submit-btn" type="button" id="sub-btn" onclick="submitAnswer()">Submit for marking →</button></div>';
+  body.appendChild(zone);
+}
+
+async function submitVenn() {
+  var q = state.currentQuestion.q;
+  var v = q.venn;
+
+  // Read values
+  var userVals = {
+    onlyA:   parseInt(document.getElementById('venn-onlyA').value) || 0,
+    both:    parseInt(document.getElementById('venn-both').value) || 0,
+    onlyB:   parseInt(document.getElementById('venn-onlyB').value) || 0,
+    neither: parseInt(document.getElementById('venn-neither').value) || 0,
+  };
+  var workingText = (document.getElementById('write-ta') || {}).value || '';
+
+  // Colour inputs
+  ['onlyA','both','onlyB','neither'].forEach(function(k) {
+    var inp = document.getElementById('venn-' + k);
+    if (inp) {
+      inp.className = 'venn-inp ' + (userVals[k] === v.regions[k] ? 'correct' : 'wrong');
+      inp.disabled = true;
+    }
+  });
+
+  // Client-side partial marking
+  var mks = v.marks;
+  var partScores = [0, 0, 0]; // (a) venn 9m, (b) neither 3m, (c) formula 8m
+  var diagramScore = 0;
+  if (userVals.onlyA === v.regions.onlyA)   diagramScore += mks.onlyA;
+  if (userVals.both  === v.regions.both)    diagramScore += mks.both;
+  if (userVals.onlyB === v.regions.onlyB)   diagramScore += mks.onlyB;
+  partScores[0] = diagramScore;
+  partScores[1] = (userVals.neither === v.regions.neither) ? mks.neither : 0;
+
+  // Formula working — check for key numbers in text
+  var wt = workingText.toLowerCase();
+  var hasFormula = (wt.includes(String(v.nA)) && wt.includes(String(v.nB)) && wt.includes(String(v.nAB)));
+  var hasAnswer  = wt.includes(String(v.regions.neither));
+  partScores[2] = hasFormula && hasAnswer ? mks.formula :
+                  hasFormula ? Math.round(mks.formula * 0.6) : 0;
+
+  var totalMarks = q.parts.reduce(function(s,p){return s+(parseInt(p.marks)||0);},0);
+  var scored = partScores.reduce(function(a,b){return a+b;},0);
+
+  // Build working summary to send to Uncle
+  var summary =
+    'Student filled Venn diagram: ' +
+    v.labelA + ' only = ' + userVals.onlyA + ' (correct: ' + v.regions.onlyA + '), ' +
+    'Both = ' + userVals.both + ' (correct: ' + v.regions.both + '), ' +
+    v.labelB + ' only = ' + userVals.onlyB + ' (correct: ' + v.regions.onlyB + '), ' +
+    'Neither = ' + userVals.neither + ' (correct: ' + v.regions.neither + '). ' +
+    'Diagram marks: ' + diagramScore + '/' + (mks.onlyA+mks.both+mks.onlyB) + '. ' +
+    'Neither mark: ' + partScores[1] + '/' + mks.neither + '. ' +
+    'Formula working: ' + (workingText || '(none written)') + '. ' +
+    'Formula marks awarded: ' + partScores[2] + '/' + mks.formula + '. ' +
+    'Total: ' + scored + '/' + totalMarks + '. ' +
+    'Correct answer: ' + v.formula + '.';
+
+  // Disable UI
+  if (document.getElementById('write-ta')) document.getElementById('write-ta').disabled = true;
+  if (document.getElementById('sub-btn')) document.getElementById('sub-btn').disabled = true;
+  clearTimeout(state.nudgeT1); clearTimeout(state.nudgeT2);
+
+  var typing = addTyping();
+
+  try {
+    var topic = state.currentTopic;
+    var turboSummary = buildTurboSummary();
+    var attemptNum = state.attempts.length + 1;
+    var prevTotal = state.attempts.length > 0 ? state.attempts[state.attempts.length-1].total : null;
+
+    var res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        mode: 'maths_mark',
+        name: state.name,
+        topic: topic,
+        question_stem: q.stem,
+        parts: q.parts,
+        working: summary,
+        turbo_summary: turboSummary,
+        attempt_number: attemptNum,
+        previous_total: prevTotal,
+        all_attempts: state.attempts.slice(-10),
+        venn_context: {
+          part_scores: partScores,
+          total: scored,
+          pre_marked: true,
+          correct_regions: v.regions,
+          user_regions: userVals,
+          formula: v.formula,
+        }
+      })
+    });
+
+    var data = await res.json();
+    removeTyping(typing);
+
+    if (data.mark) {
+      // Override with our client-side marks — they are accurate
+      data.mark.part_scores = partScores;
+      data.mark.total = scored;
+      showMark(data.mark, topic, q);
+    } else {
+      addUnMsg('Something went wrong. Try again.');
+    }
+  } catch(e) {
+    removeTyping(typing);
+    addUnMsg('Lost the connection. Check your signal and try again.');
+  }
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function buildTurboSummary() {
+  if (!state.turboData) return 'No Turbo data.';
+  return Object.keys(state.turboData).map(function(cat) {
+    var d = state.turboData[cat];
+    var stars = Object.values(d.levels||{}).reduce(function(a,b){return a+b;},0);
+    return (d.label||cat)+': '+stars+' stars';
+  }).join(' | ');
+}
+
+function formatWorked(text) {
+  if (!text) return '';
+  var e = escHtml(text);
+  e = e.replace(/\[NOTE:\s*(.*?)\]/g, '<span class="worked-note">💡 $1</span>');
+  return e.replace(/\n/g,'<br>');
+}
+
+function formatFeedback(text) {
+  if (!text) return '';
+  return '<p>' + escHtml(text).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
+}
+
+function addTyping() {
+  var body = document.getElementById('coach-body');
+  var w = document.createElement('div'); w.className='un-msg'; w.id='typing-el';
+  var av = document.createElement('div'); av.className='un-av'; av.textContent='👨‍🔧';
+  var bub = document.createElement('div'); bub.className='typing-ind';
+  bub.innerHTML='<div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>';
+  w.appendChild(av); w.appendChild(bub); body.appendChild(w);
+  scrollBottom(); return w;
+}
+function removeTyping(el) { if (el&&el.parentNode) el.parentNode.removeChild(el); }
+
+function addUnMsg(text) {
+  var body = document.getElementById('coach-body');
+  var w = document.createElement('div'); w.className='un-msg';
+  var av = document.createElement('div'); av.className='un-av'; av.textContent='👨‍🔧';
+  var bub = document.createElement('div'); bub.className='un-bub';
+  bub.innerHTML='<p>'+escHtml(text).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>')+'</p>';
+  w.appendChild(av); w.appendChild(bub); body.appendChild(w);
+  scrollBottom();
+}
+
+function addNudge(msg) {
+  var el = document.createElement('div'); el.className='nudge';
+  el.innerHTML='⏱ '+escHtml(msg);
+  document.getElementById('coach-body').appendChild(el);
+  scrollBottom();
+}
+
+function openCriteria() { document.getElementById('criteria-overlay').classList.add('open'); }
+function closeCriteria() { document.getElementById('criteria-overlay').classList.remove('open'); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  if (id==='screen-graph') renderGraph();
+}
+
+function scrollBottom() {
+  var b = document.getElementById('coach-body');
+  if (b) setTimeout(function(){b.scrollTop=b.scrollHeight;},60);
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+</script>
+</body>
+</html>
